@@ -9,16 +9,6 @@ import { money } from '../utils/format.js';
 export default function Cart() {
   const { items, subtotal, updateQty, removeItem } = useCart();
   const { currencySymbol } = useBusiness();
-  const toast = useToast();
-  const navigate = useNavigate();
-  const [coupon, setCoupon] = useState('');
-
-  const applyCoupon = (e) => {
-    e.preventDefault();
-    if (!coupon.trim()) return;
-    navigate('/checkout', { state: { coupon: coupon.trim() } });
-  };
-
   return (
     <>
       <div className="page-title-bar">
@@ -79,7 +69,7 @@ export default function Cart() {
                       <div className="cart-col-total">
                         <span className="cart-row-total">{money(item.total_price, currencySymbol)}</span>
                         <button
-                          className="cart-remove"
+                          className="cart-remove text-danger"
                           type="button"
                           aria-label="Remove item"
                           onClick={() => removeItem(item.id)}
@@ -90,31 +80,12 @@ export default function Cart() {
                     </div>
                   </div>
                 ))}
-
                 <div className="cart-panel-footer">
                   <Link to="/shop" className="link-accent">
-                    <i className="bi bi-arrow-left"></i> Continue shopping
+                    <i className="bi bi-arrow-left"></i>
+                    Continue shopping
                   </Link>
-                  <button type="button" className="btn btn-outline-dark" onClick={() => toast.info('Cart updated')}>
-                    Update Cart
-                  </button>
                 </div>
-              </div>
-
-              <div className="panel coupon-panel mt-4">
-                <form className="coupon-form" onSubmit={applyCoupon}>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Coupon code"
-                    aria-label="Coupon code"
-                    value={coupon}
-                    onChange={(e) => setCoupon(e.target.value)}
-                  />
-                  <button type="submit" className="btn btn-dark">
-                    Apply Coupon
-                  </button>
-                </form>
               </div>
             </div>
 
@@ -125,10 +96,6 @@ export default function Cart() {
                   <span>Subtotal</span>
                   <strong>{money(subtotal, currencySymbol)}</strong>
                 </div>
-                <div className="order-summary-row">
-                  <span>Shipping</span>
-                  <strong className="text-accent">Calculated at checkout</strong>
-                </div>
                 <div className="order-summary-total">
                   <span>Total</span>
                   <strong>{money(subtotal, currencySymbol)}</strong>
@@ -136,9 +103,6 @@ export default function Cart() {
                 <Link to="/checkout" className="btn btn-accent w-100">
                   Proceed to Checkout <i className="bi bi-arrow-right"></i>
                 </Link>
-                <p className="order-summary-note">
-                  <i className="bi bi-shield-check"></i> Secure checkout &mdash; SSL encrypted
-                </p>
               </div>
             </div>
           </div>
