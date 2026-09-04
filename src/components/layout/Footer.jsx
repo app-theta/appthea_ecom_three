@@ -4,7 +4,6 @@ import { categoryNavTree } from '../../utils/categoryTree.js';
 
 export default function Footer() {
   const { info, categories } = useBusiness();
-  console.log(info);
 
   const name = info?.name || 'AppTheta Ecom';
   const shopLinks = categoryNavTree(categories).slice(0, 4);
@@ -15,43 +14,68 @@ export default function Footer() {
         <div className="row g-4">
           <div className="col-lg-4 col-md-6">
             <Link to="/" className="brand brand-footer">
-              {name}<span>.</span>
+              {name}
+              <span>.</span>
             </Link>
             <p className="footer-text">
               Everyday wear made to last &mdash; dresses, accessories and winter staples, shipped
               worldwide.
             </p>
             <ul className="footer-social">
-              <li>
-                <a href={info?.facebook_link || '#'} aria-label="Facebook">
-                  <i className="bi bi-facebook"></i>
-                </a>
-              </li>
-              <li>
-                <a href={info?.instagram_link || '#'} aria-label="Instagram">
-                  <i className="bi bi-instagram"></i>
-                </a>
-              </li>
-              <li>
-                <a href="#" aria-label="LinkedIn">
-                  <i className="bi bi-linkedin"></i>
-                </a>
-              </li>
+              {info?.facebook_link && (
+                <li>
+                  <a href={info?.facebook_link || '#'} aria-label="Facebook" target='__blank'>
+                    <i className="bi bi-facebook"></i>
+                  </a>
+                </li>
+              )}
+              {info?.instagram_link && (
+                <li>
+                  <a href={info?.instagram_link || '#'} aria-label="Instagram" target='__blank'>
+                    <i className="bi bi-instagram"></i>
+                  </a>
+                </li>
+              )}
+              {info?.linkedin_link && (
+                <li>
+                  <a href={info?.linkedin_link || '#'} aria-label="LinkedIn" target='__blank'>
+                    <i className="bi bi-linkedin"></i>
+                  </a>
+                </li>
+              )}
+              {info?.x_link && (
+                <li>
+                  <a href={info?.x_link || '#'} aria-label="X" target='__blank'>
+                    <i className="bi bi-twitter"></i>
+                  </a>
+                </li>
+              )}
+              {info?.youtube_link && (
+                <li>
+                  <a href={info?.youtube_link || '#'} aria-label="YouTube" target='__blank'>
+                    <i className="bi bi-youtube"></i>
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
           <div className="col-lg-2 col-md-3 col-6">
-            <h6 className="footer-title">Shop</h6>
+            <h6 className="footer-title">
+              Shop
+            </h6>
             <ul className="footer-links">
               {shopLinks.length === 0 ? (
                 <li>
                   <Link to="/shop">
-                    <i className="bi bi-chevron-double-right"></i> All Products
+                    <i className="bi bi-chevron-double-right"></i>
+                    All Products
                   </Link>
                 </li>
               ) : shopLinks.map((c) => (
                 <li key={c.id}>
                   <Link to={`/shop?category=${c.slug}`}>
-                    <i className="bi bi-chevron-double-right"></i> {c.label}
+                    <i className="bi bi-chevron-double-right"></i>
+                    {c.label}
                   </Link>
                 </li>
               ))}
@@ -62,22 +86,26 @@ export default function Footer() {
             <ul className="footer-links">
               <li>
                 <Link to="/blog">
-                  <i className="bi bi-chevron-double-right"></i> Blog
+                  <i className="bi bi-chevron-double-right"></i>
+                  Blog
                 </Link>
               </li>
               <li>
                 <Link to="/contact">
-                  <i className="bi bi-chevron-double-right"></i> Contact Us
+                  <i className="bi bi-chevron-double-right"></i>
+                  Contact Us
                 </Link>
               </li>
               <li>
                 <Link to="/terms">
-                  <i className="bi bi-chevron-double-right"></i> Terms &amp; Conditions
+                  <i className="bi bi-chevron-double-right"></i>
+                  Terms &amp; Conditions
                 </Link>
               </li>
               <li>
                 <Link to="/privacy">
-                  <i className="bi bi-chevron-double-right"></i> Privacy Policy
+                  <i className="bi bi-chevron-double-right"></i>
+                  Privacy Policy
                 </Link>
               </li>
             </ul>
@@ -122,13 +150,19 @@ export default function Footer() {
           <p>&copy; {new Date().getFullYear()} {name}. All rights reserved.</p>
           <ul>
             <li>
-              <Link to="/terms">Terms</Link>
+              <Link to="/terms">
+                Terms
+              </Link>
             </li>
             <li>
-              <Link to="/privacy">Privacy</Link>
+              <Link to="/privacy">
+                Privacy
+              </Link>
             </li>
             <li>
-              <Link to="/contact">Support</Link>
+              <Link to="/contact">
+                Support
+              </Link>
             </li>
           </ul>
         </div>

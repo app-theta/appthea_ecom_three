@@ -35,6 +35,7 @@ export default function SiteHeader() {
   const searchToggleRef = useRef(null);
   const searchPanelRef = useRef(null);
   const searchInputRef = useRef(null);
+  const mobileNavRef = useRef(null);
 
   const megaColumns = useMemo(() => categoryColumns(categories, 4), [categories]);
 
@@ -150,6 +151,11 @@ export default function SiteHeader() {
     navigate(`/shop?keyword=${encodeURIComponent(query.trim())}`);
   };
 
+  const closeMobileNav = () => {
+    if (!mobileNavRef.current || !window.bootstrap) return;
+    window.bootstrap.Offcanvas.getOrCreateInstance(mobileNavRef.current).hide();
+  };
+
   return (
     <>
       {/* ============================= TOP BAR ============================= */}
@@ -193,7 +199,7 @@ export default function SiteHeader() {
                 </a>
               </li>
               <li className="d-none d-sm-block">
-                <Link to="/track-order">
+                <Link to="track-order">
                   <i className="bi bi-truck"></i>
                   <span>Track Order</span>
                 </Link>
@@ -254,7 +260,7 @@ export default function SiteHeader() {
             <nav className="header-nav d-none d-lg-block">
               <ul className="nav-list">
                 <li>
-                  <NavLink to="/" end className="nav-link">
+                  <NavLink to="" end className="nav-link">
                     Home
                   </NavLink>
                 </li>
@@ -265,7 +271,8 @@ export default function SiteHeader() {
                   onMouseLeave={hoverCloseMega}
                 >
                   <a href="#" className="nav-link js-mega-toggle" onClick={toggleMega}>
-                    Categories <i className="bi bi-chevron-down caret"></i>
+                    Categories
+                    <i className="bi bi-chevron-down caret"></i>
                   </a>
                   <div className="mega-menu js-mega-panel" onClick={(e) => e.stopPropagation()}>
                     <div className="container">
@@ -274,8 +281,8 @@ export default function SiteHeader() {
                           <div className="col-lg-3 col-md-6" key={i}>
                             {col.map((cat) => (
                               <div key={cat.id} className="mb-3">
-                                <h6 className="mega-title">
-                                  <Link to={`/shop?category=${cat.slug}`}>{cat.label}</Link>
+                                <h6>
+                                  <Link className="mega-title" to={`/shop?category=${cat.slug}`}>{cat.label}</Link>
                                 </h6>
                                 {cat.children.length > 0 && (
                                   <ul className="mega-list">
@@ -296,7 +303,7 @@ export default function SiteHeader() {
                 </li>
 
                 <li>
-                  <NavLink to="/shop" className="nav-link">
+                  <NavLink to="shop" className="nav-link">
                     Shop
                   </NavLink>
                 </li>
@@ -324,7 +331,7 @@ export default function SiteHeader() {
                 </li>
 
                 <li>
-                  <NavLink to="/contact" className="nav-link">
+                  <NavLink to="contact" className="nav-link">
                     Contact Us
                   </NavLink>
                 </li>
@@ -332,7 +339,7 @@ export default function SiteHeader() {
             </nav>
 
             {/* CENTER : logo */}
-            <Link to="/" className="brand">
+            <Link to="" className="brand">
               {info?.name || 'AppTheta Ecom'}<span>.</span>
             </Link>
 
@@ -350,7 +357,7 @@ export default function SiteHeader() {
               </button>
 
               <Link
-                to="/user/wishlist"
+                to="user/wishlist"
                 className="icon-btn d-none d-sm-inline-flex"
                 aria-label="Wishlist"
               >
@@ -393,12 +400,12 @@ export default function SiteHeader() {
                       </li>
                       <li><hr className="drop-divider" /></li>
                       <li>
-                        <Link to="/user/dashboard">
+                        <Link to="user/dashboard">
                           <i className="bi bi-speedometer2"></i> My Account
                         </Link>
                       </li>
                       <li>
-                        <Link to="/user/purchase-history">
+                        <Link to="user/purchase-history">
                           <i className="bi bi-bag-check"></i> My Orders
                         </Link>
                       </li>
@@ -406,12 +413,12 @@ export default function SiteHeader() {
                   ) : (
                     <>
                       <li>
-                        <Link to="/login">
+                        <Link to="login">
                           <i className="bi bi-box-arrow-in-right"></i> Login
                         </Link>
                       </li>
                       <li>
-                        <Link to="/register">
+                        <Link to="register">
                           <i className="bi bi-person-plus"></i> Register
                         </Link>
                       </li>
@@ -487,6 +494,7 @@ export default function SiteHeader() {
 
       {/* ============================= MOBILE NAV ============================= */}
       <div
+        ref={mobileNavRef}
         className="offcanvas offcanvas-start mobile-nav"
         tabIndex="-1"
         id="mobileNav"
@@ -506,7 +514,7 @@ export default function SiteHeader() {
         <div className="offcanvas-body">
           <ul className="m-nav">
             <li>
-              <Link to="/">Home</Link>
+              <Link to="" onClick={closeMobileNav}>Home</Link>
             </li>
             <li>
               <a
@@ -523,7 +531,7 @@ export default function SiteHeader() {
                   <ul>
                     {megaColumns.flat().map((cat) => (
                       <li key={cat.id}>
-                        <Link to={`/shop?category=${cat.slug}`}>{cat.label}</Link>
+                        <Link to={`/shop?category=${cat.slug}`} onClick={closeMobileNav}>{cat.label}</Link>
                       </li>
                     ))}
                   </ul>
@@ -531,7 +539,7 @@ export default function SiteHeader() {
               </div>
             </li>
             <li>
-              <Link to="/shop">Shop</Link>
+              <Link to="shop" onClick={closeMobileNav}>Shop</Link>
             </li>
             <li>
               <a
@@ -556,29 +564,37 @@ export default function SiteHeader() {
               </div>
             </li>
             <li>
-              <Link to="/blog">Blog</Link>
+              <Link to="blog" onClick={closeMobileNav}>
+                Blog
+              </Link>
             </li>
             <li>
-              <Link to="/contact">Contact Us</Link>
+              <Link to="contact" onClick={closeMobileNav}>
+                Contact Us
+              </Link>
             </li>
           </ul>
 
           <div className="m-extra">
-            <Link to="/user/wishlist" className="m-extra-link">
-              <i className="bi bi-heart"></i> Wishlist{' '}
+            <Link to="user/wishlist" className="m-extra-link" onClick={closeMobileNav}>
+              <i className="bi bi-heart"></i>
+              Wishlist{' '}
               <span className="badge-count static">{wishlistCount}</span>
             </Link>
             {isAuthed ? (
-              <Link to="/user/dashboard" className="m-extra-link">
-                <i className="bi bi-person"></i> My Account
+              <Link to="user/dashboard" className="m-extra-link" onClick={closeMobileNav}>
+                <i className="bi bi-person"></i>
+                My Account
               </Link>
             ) : (
-              <Link to="/login" className="m-extra-link">
-                <i className="bi bi-person"></i> Login / Register
+              <Link to="login" className="m-extra-link" onClick={closeMobileNav}>
+                <i className="bi bi-person"></i>
+                Login / Register
               </Link>
             )}
-            <Link to="/track-order" className="m-extra-link">
-              <i className="bi bi-truck"></i> Track Order
+            <Link to="track-order" className="m-extra-link" onClick={closeMobileNav}>
+              <i className="bi bi-truck"></i>
+              Track Order
             </Link>
           </div>
         </div>

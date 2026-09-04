@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuickView } from '../../context/QuickViewContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
@@ -20,6 +20,7 @@ export default function QuickViewDrawer() {
   const toast = useToast();
   const navigate = useNavigate();
 
+  const drawerRef = useRef(null);
   const [activeImage, setActiveImage] = useState(0);
   const [colourCode, setColourCode] = useState(null);
   const [sizeLabel, setSizeLabel] = useState(null);
@@ -67,7 +68,7 @@ export default function QuickViewDrawer() {
     if (!isAuthed) { navigate('/login'); return; }
     wishlist.toggle(product.id).then((action) => {
       toast.success(action === 'added' ? 'Added to wishlist' : 'Removed from wishlist');
-    }).catch(() => {});
+    }).catch(() => { });
   };
 
   const buy = (goToCheckout) => {
@@ -77,8 +78,14 @@ export default function QuickViewDrawer() {
     else toast.success(`${product.name} added to cart`);
   };
 
+  const closeDrawer = () => {
+    if (!drawerRef.current || !window.bootstrap) return;
+    window.bootstrap.Offcanvas.getOrCreateInstance(drawerRef.current).hide();
+  };
+
   return (
     <div
+      ref={drawerRef}
       className="offcanvas offcanvas-end quickview-drawer"
       tabIndex="-1"
       id="quickViewDrawer"
@@ -186,7 +193,8 @@ export default function QuickViewDrawer() {
                   Buy Now
                 </button>
                 <button type="button" className="btn btn-accent qv-add-cart" onClick={() => buy(false)}>
-                  <i className="bi bi-cart3"></i> Add to Cart
+                  <i className="bi bi-cart3"></i>
+                  Add to Cart
                 </button>
               </div>
             </div>
@@ -225,7 +233,7 @@ export default function QuickViewDrawer() {
             </div>
           )}
 
-          <Link to={`/product/${product.slug}`} className="btn btn-outline-dark w-100 mt-3">
+          <Link to={`/product/${product.slug}`} className="btn btn-outline-dark w-100 mt-3" onClick={closeDrawer}>
             View Full Details
           </Link>
         </div>

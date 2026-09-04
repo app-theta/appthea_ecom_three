@@ -97,9 +97,9 @@ export default function ProductCard({ product }) {
         <h3 className="product-name">
           <Link to={href}>{product.name}</Link>
         </h3>
-        <div className="product-rating">
+        {/* <div className="product-rating">
           <Stars full={Math.floor(rating)} half={rating % 1 >= 0.5 ? 1 : 0} />
-        </div>
+        </div> */}
         <div className="product-price justify-content-between">
           <span className="price-now">{money(price.now, currencySymbol)}</span>
           {price.was > 0 && <span className="price-old">{money(price.was, currencySymbol)}</span>}

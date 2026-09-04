@@ -40,13 +40,20 @@ export default function DashSidebar() {
         <ul>
           {navItems.map((item) => (
             <li key={item.to}>
-              <NavLink to={item.to} className="dash-nav-link">
+              <NavLink
+                to={item.to}
+                end={item.to === '/user/dashboard'}
+                className={({ isActive }) => `dash-nav-link${isActive ? ' is-active' : ''}`}
+              >
                 <i className={`bi ${item.icon}`}></i> {item.label}
               </NavLink>
             </li>
           ))}
           <li>
-            <NavLink to="/user/delete-account" className="dash-nav-link is-danger">
+            <NavLink
+              to="/user/delete-account"
+              className={({ isActive }) => `dash-nav-link is-danger${isActive ? ' is-active' : ''}`}
+            >
               <i className="bi bi-x-circle"></i> Delete My Account
             </NavLink>
           </li>
