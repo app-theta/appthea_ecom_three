@@ -5,6 +5,7 @@
 :root {
   --ink: #111114;
   --ink-soft: #5b5b66;
+  --ink-danger: #e63e3e;
   --line: #e9e6ef;
   --accent: #7b3ff2;
   --accent-soft: #f3ecff;
@@ -2639,7 +2640,7 @@ ul {
 
 .price-old {
   font-size: var(--fs-xs);
-  color: var(--ink-soft);
+  color: var(--ink-danger);
   text-decoration: line-through;
 }
 

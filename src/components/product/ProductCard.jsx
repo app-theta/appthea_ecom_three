@@ -47,7 +47,7 @@ export default function ProductCard({ product }) {
   const onWish = (e) => {
     e.preventDefault();
     if (!isAuthed) { navigate('/login'); return; }
-    wishlist.toggle(product.id).catch(() => {});
+    wishlist.toggle(product.id).catch(() => { });
   };
 
   const onAddToCart = (e) => {
@@ -64,7 +64,7 @@ export default function ProductCard({ product }) {
   return (
     <article className="product-card">
       <div className="product-media">
-        {discount > 0 && <span className="product-badge">-{discount}%</span>}
+        {discount > 0 && <span className="product-badge">-{discount}% OFF</span>}
         <Link to={href}>
           <img className="product-thumb" src={images[0]} alt={product.name} loading="lazy" />
           {images[1] && (
@@ -100,10 +100,9 @@ export default function ProductCard({ product }) {
         <div className="product-rating">
           <Stars full={Math.floor(rating)} half={rating % 1 >= 0.5 ? 1 : 0} />
         </div>
-        <div className="product-price">
+        <div className="product-price justify-content-between">
           <span className="price-now">{money(price.now, currencySymbol)}</span>
           {price.was > 0 && <span className="price-old">{money(price.was, currencySymbol)}</span>}
-          {discount > 0 && <span className="price-off">{discount}% OFF</span>}
         </div>
         <div className="product-actions">
           <button type="button" className="btn btn-accent btn-add-cart" disabled={soldOut} onClick={onAddToCart}>

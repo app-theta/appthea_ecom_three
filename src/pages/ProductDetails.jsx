@@ -35,7 +35,7 @@ export default function ProductDetails() {
   const wishlist = useWishlist();
   const toast = useToast();
 
-  const { data: product, loading, error } = useAsync((signal) => catalog.product(slug, { signal }), [slug]);
+  const { data: product, loading, error, reload: reloadProduct } = useAsync((signal) => catalog.product(slug, { signal }), [slug]);
 
   const [activeImage, setActiveImage] = useState(0);
   const [colourCode, setColourCode] = useState(null);
@@ -75,14 +75,6 @@ export default function ProductDetails() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product?.id]);
 
-  const { data: reviewsData, loading: reviewsLoading, reload: reloadReviews } = useAsync(
-    (signal) => (product?.id ? reviewsApi.list(product.id, undefined, { signal }) : Promise.resolve(null)),
-    [product?.id],
-    { skip: !product?.id },
-  );
-  const reviewRows = Array.isArray(reviewsData) ? reviewsData : (reviewsData?.data ?? []);
-  const reviewSummary = reviewsData?.summary || null;
-
   const { data: relatedData } = useAsync(
     (signal) => (product?.category?.id ? catalog.products({ category_id: product.category.id, per_page: 4 }, { signal }) : Promise.resolve(null)),
     [product?.category?.id],
@@ -100,6 +92,11 @@ export default function ProductDetails() {
       </div>
     );
   }
+  const reviewRows = Array.isArray(product.reviews) ? product.reviews : [];
+  const reviewSummary = {
+    average: Number(product.average_rating || 0),
+    total: Number(product.total_reviews ?? reviewRows.length),
+  };
 
   const images = productImages(product);
   const price = selectedBarcode ? barcodePrice(selectedBarcode) : { now: 0, was: 0 };
@@ -192,10 +189,10 @@ export default function ProductDetails() {
 
     setReviewBusy(true);
     try {
-      await reviewsApi.store({ product_id: product.id, rating: reviewRating, comment: reviewComment });
+      await reviewsApi.store({ product_id: product.id, rating: reviewRating, review: reviewComment });
       setReviewComment('');
       setReviewRating(0);
-      reloadReviews();
+      reloadProduct();
       toast.success('Review submitted');
       if (window.bootstrap) {
         const modalEl = document.getElementById('writeReviewModal');
@@ -320,7 +317,7 @@ export default function ProductDetails() {
                   </div>
                 )}
                 <div className="pd-main">
-                  {discount > 0 && <span className="product-badge">-{discount}%</span>}
+                  {discount > 0 && <span className="product-badge">-{discount}% OFF</span>}
                   <img src={images[activeImage]} alt={product.name} loading="lazy" />
                 </div>
               </div>
@@ -331,9 +328,9 @@ export default function ProductDetails() {
                 <h1 className="pd-title">{product.name}</h1>
 
                 <div className="product-rating">
-                  <StarRow rating={reviewSummary ? Number(reviewSummary.average || 0) : 0} />
+                  <StarRow rating={reviewSummary.average} />
                   <span className="rating-count">
-                    {reviewSummary ? `(${reviewSummary.total} reviews)` : ''}
+                    {reviewSummary.total > 0 ? `(${reviewSummary.total} reviews)` : ''}
                   </span>
                   <a href="#" className="pd-review-link" data-bs-toggle="modal" data-bs-target="#writeReviewModal">
                     Write a review
@@ -484,11 +481,11 @@ export default function ProductDetails() {
               </div>
               <div className="tab-pane fade" id="pd-reviews" role="tabpanel">
                 <div className="pd-review-summary">
-                  {reviewSummary && (
+                  {reviewSummary.total > 0 && (
                     <div className="pd-review-score">
-                      <span className="pd-score-num">{Number(reviewSummary.average || 0).toFixed(1)}</span>
-                      <StarRow rating={Number(reviewSummary.average || 0)} />
-                      <span className="rating-count">Based on {reviewSummary.total} reviews</span>
+                      <span className="pd-score-num">{reviewSummary.average.toFixed(1)}</span>
+                      <StarRow rating={reviewSummary.average} />
+                      <span className="rating-count">Based on {reviewSummary.total} review{reviewSummary.total > 1 ? 's' : ''}</span>
                     </div>
                   )}
                   <button type="button" className="btn btn-outline-dark pd-write-review-btn" data-bs-toggle="modal" data-bs-target="#writeReviewModal">
@@ -497,24 +494,28 @@ export default function ProductDetails() {
                 </div>
 
                 <div className="pd-review-list" id="pdReviewList">
-                  {reviewsLoading ? (
-                    <p>Loading reviews…</p>
-                  ) : reviewRows.length === 0 ? (
+                  {reviewRows.length === 0 ? (
                     <p>No reviews yet. Be the first to review this product.</p>
-                  ) : reviewRows.map((r) => (
-                    <div className="pd-review" key={r.id}>
-                      <div className="pd-review-avatar-fallback">
-                        {(r.customer?.name || r.customer_name || 'A').charAt(0).toUpperCase()}
-                      </div>
-                      <div className="pd-review-body">
-                        <div className="pd-review-head">
-                          <strong>{r.customer?.name || r.customer_name || 'Customer'}</strong>
-                          <StarRow rating={r.rating} />
+                  ) : reviewRows.map((r) => {
+                    const name = [r.customer?.first_name, r.customer?.last_name].filter(Boolean).join(' ')
+                      || r.customer_name || 'Customer';
+                    const date = (r.created_at || '').split(' ').slice(0, 3).join(' ');
+                    return (
+                      <div className="pd-review" key={r.id}>
+                        <div className="pd-review-avatar-fallback">
+                          {name.charAt(0).toUpperCase()}
                         </div>
-                        <p>{r.comment || r.review}</p>
+                        <div className="pd-review-body">
+                          <div className="pd-review-head">
+                            <strong>{name}</strong>
+                            <StarRow rating={r.rating} />
+                            {date && <span className="rating-count ms-auto">{date}</span>}
+                          </div>
+                          <p>{r.review || r.comment}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </div>

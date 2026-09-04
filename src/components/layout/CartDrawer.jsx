@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useCart } from '../../context/CartContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
@@ -6,9 +7,16 @@ import { money } from '../../utils/format.js';
 export default function CartDrawer() {
   const { items, count, subtotal, updateQty, removeItem } = useCart();
   const { currencySymbol } = useBusiness();
+  const drawerRef = useRef(null);
+
+  const closeDrawer = () => {
+    if (!drawerRef.current || !window.bootstrap) return;
+    window.bootstrap.Offcanvas.getInstance(drawerRef.current)?.hide();
+  };
 
   return (
     <div
+      ref={drawerRef}
       className="offcanvas offcanvas-end cart-drawer"
       tabIndex="-1"
       id="cartDrawer"
@@ -35,7 +43,11 @@ export default function CartDrawer() {
                 <img src={item.image} alt="" loading="lazy" />
               </div>
               <div className="cart-info">
-                <Link to={item.slug ? `/product/${item.slug}` : '/shop'} className="cart-name">
+                <Link
+                  to={item.slug ? `/product/${item.slug}` : '/shop'}
+                  className="cart-name"
+                  onClick={closeDrawer}
+                >
                   {item.name}
                 </Link>
                 <LineDetail item={item} />
@@ -82,10 +94,10 @@ export default function CartDrawer() {
           <strong>{money(subtotal, currencySymbol)}</strong>
         </div>
         <p className="cart-note">Shipping and taxes are calculated at checkout.</p>
-        <Link to="/checkout" className="btn btn-dark w-100 mb-2">
+        <Link to="/checkout" className="btn btn-dark w-100 mb-2" onClick={closeDrawer}>
           Checkout
         </Link>
-        <Link to="/cart" className="btn btn-outline-dark w-100">
+        <Link to="/cart" className="btn btn-outline-dark w-100" onClick={closeDrawer}>
           View bag
         </Link>
       </div>

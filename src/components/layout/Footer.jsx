@@ -4,6 +4,8 @@ import { categoryNavTree } from '../../utils/categoryTree.js';
 
 export default function Footer() {
   const { info, categories } = useBusiness();
+  console.log(info);
+
   const name = info?.name || 'AppTheta Ecom';
   const shopLinks = categoryNavTree(categories).slice(0, 4);
 
@@ -96,22 +98,24 @@ export default function Footer() {
                 <a href={info?.phone ? `tel:${info.phone}` : undefined}>{info?.phone || '—'}</a>
               </li>
             </ul>
-
-            <form className="footer-form input-group" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Email address"
-                aria-label="Email address"
-              />
-              <button className="btn btn-accent" type="submit">
-                Join
-              </button>
-            </form>
-            <p className="footer-note">
-              Get 10% off your first order. Unsubscribe any time &mdash; read our{' '}
-              <Link to="/privacy">Privacy Policy</Link>.
-            </p>
+            {info?.features?.is_subscribe_newsletter && (
+              <>
+                <form className="footer-form input-group" onSubmit={(e) => e.preventDefault()}>
+                  <input
+                    type="email"
+                    className="form-control"
+                    placeholder="Email address"
+                    aria-label="Email address"
+                  />
+                  <button className="btn btn-accent" type="submit">
+                    Join
+                  </button>
+                </form>
+                <p className="footer-note">
+                  Get 10% off your first order. Unsubscribe any time.
+                </p>
+              </>
+            )}
           </div>
         </div>
         <div className="footer-bottom">
