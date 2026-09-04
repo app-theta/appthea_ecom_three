@@ -79,17 +79,17 @@ export default function Footer() {
                   </Link>
                 </li>
               ))}
-            </ul>
-          </div>
-          <div className="col-lg-2 col-md-3 col-6">
-            <h6 className="footer-title">Company</h6>
-            <ul className="footer-links">
               <li>
                 <Link to="/blog">
                   <i className="bi bi-chevron-double-right"></i>
                   Blog
                 </Link>
               </li>
+            </ul>
+          </div>
+          <div className="col-lg-2 col-md-3 col-6">
+            <h6 className="footer-title">Company</h6>
+            <ul className="footer-links">
               <li>
                 <Link to="/contact">
                   <i className="bi bi-chevron-double-right"></i>
@@ -106,6 +106,24 @@ export default function Footer() {
                 <Link to="/privacy">
                   <i className="bi bi-chevron-double-right"></i>
                   Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/shipping-policy">
+                  <i className="bi bi-chevron-double-right"></i>
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/refund-policy">
+                  <i className="bi bi-chevron-double-right"></i>
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link to="/return-policy">
+                  <i className="bi bi-chevron-double-right"></i>
+                  Return Policy
                 </Link>
               </li>
             </ul>

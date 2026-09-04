@@ -13,6 +13,9 @@ import Blog from './pages/Blog.jsx';
 import Contact from './pages/Contact.jsx';
 import Privacy from './pages/Privacy.jsx';
 import Terms from './pages/Terms.jsx';
+import ShippingPolicy from './pages/ShippingPolicy.jsx';
+import RefundPolicy from './pages/RefundPolicy.jsx';
+import ReturnPolicy from './pages/ReturnPolicy.jsx';
 import TrackOrder from './pages/TrackOrder.jsx';
 import OrderComplete from './pages/OrderComplete.jsx';
 import Dashboard from './pages/user/Dashboard.jsx';
@@ -43,6 +46,9 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        <Route path="/shipping-policy" element={<ShippingPolicy />} />
+        <Route path="/refund-policy" element={<RefundPolicy />} />
+        <Route path="/return-policy" element={<ReturnPolicy />} />
         <Route path="/track-order" element={<TrackOrder />} />
         <Route path="/order-complete" element={<OrderComplete />} />
         <Route path="/user/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

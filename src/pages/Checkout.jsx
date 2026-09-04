@@ -351,11 +351,11 @@ export default function Checkout() {
                       disabled={!!applied}
                     />
                     {applied ? (
-                      <button type="button" className="btn btn-dark" onClick={() => { setApplied(null); setCoupon(''); }}>
+                      <button type="button" className="btn btn-accent" onClick={() => { setApplied(null); setCoupon(''); }}>
                         Remove
                       </button>
                     ) : (
-                      <button type="button" className="btn btn-dark" onClick={() => applyCoupon()} disabled={couponBusy}>
+                      <button type="button" className="btn btn-accent" onClick={() => applyCoupon()} disabled={couponBusy}>
                         {couponBusy ? '…' : 'Apply'}
                       </button>
                     )}

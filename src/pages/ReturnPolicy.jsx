@@ -1,10 +1,10 @@
 import LegalLayout from '../components/legal/LegalLayout.jsx';
 import PolicyContent from '../components/legal/PolicyContent.jsx';
 
-export default function Terms() {
+export default function ReturnPolicy() {
   return (
-    <LegalLayout title="Terms & Conditions">
-      <PolicyContent field="terms_condition" />
+    <LegalLayout title="Return Policy">
+      <PolicyContent field="return_policy" />
     </LegalLayout>
   );
 }
