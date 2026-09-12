@@ -11,6 +11,7 @@ const EMPTY_FEATURES = {
   phone_verification: false,
   newsletter_popup: false,
   open_cart: false,
+  draft_orders: false,
   show_breedcrumb: false,
   user_wishlist: false,
   facebook_status: false,

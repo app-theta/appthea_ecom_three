@@ -445,15 +445,14 @@ export default function ProductDetails() {
                       <i className="bi bi-truck"></i> <strong>Cash on Delivery available</strong>
                     </li>
                   )}
-                  {selectedBarcode?.barcode && (
-                    <li>
-                      <i className="bi bi-upc-scan"></i> <strong>SKU:</strong> {selectedBarcode.barcode}
-                    </li>
-                  )}
                   {product.category?.name && (
                     <li>
                       <i className="bi bi-tags"></i> <strong>Category:</strong> {product.category.name}
-                      {product.brand?.name && `, ${product.brand.name}`}
+                    </li>
+                  )}
+                  {product.brand?.name && (
+                    <li>
+                      <i className="bi bi-tags"></i> <strong>Brand:</strong> {product.brand.name}
                     </li>
                   )}
                 </ul>

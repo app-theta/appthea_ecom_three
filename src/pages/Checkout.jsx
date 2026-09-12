@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -9,6 +9,7 @@ import { LineDetail } from '../components/layout/CartDrawer.jsx';
 import { checkout as checkoutApi } from '../api/endpoints.js';
 import { parseApiError, isPriceMismatch, needsOtp } from '../api/errors.js';
 import { money } from '../utils/format.js';
+import { useCheckoutDraftAutosave } from '../hooks/useCheckoutDraftAutosave.js';
 
 const PAYMENT_META = {
   'Cash On Delivery': { icon: 'bi-cash-coin', bg: '#e3f5ea', fg: '#1f9254', note: 'Pay when your order arrives' },
@@ -90,7 +91,24 @@ export default function Checkout() {
     return Math.max(0, subtotal + shippingCharge - discount);
   }, [applied, subtotal, shippingCharge, discount]);
 
-  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
+  const getCartPayload = useCallback(() => ({ cart: apiCart(), grandTotal: total }), [apiCart, total]);
+  const { saveDraft } = useCheckoutDraftAutosave({ isLoggedIn: isAuthed, enabled: !!features.draft_orders, getCartPayload });
+
+  const set = (k) => (e) => {
+    const value = e.target.value;
+    const next = { ...form, [k]: value };
+    setForm(next);
+    if (k === 'phone') {
+      saveDraft({
+        full_name: `${next.firstName} ${next.lastName}`.trim(),
+        phone: next.phone,
+        email: next.email,
+        address: next.address,
+        city: next.city,
+        country: next.country,
+      });
+    }
+  };
 
   const placeOrder = async (e) => {
     e.preventDefault();
@@ -212,28 +230,6 @@ export default function Checkout() {
             <div className="col-lg-7">
               <div className="panel checkout-panel">
                 <h5 className="checkout-panel-title">
-                  <i className="bi bi-person-circle"></i> Contact Information
-                </h5>
-                <div className="row g-3">
-                  <div className="col-md-6">
-                    <label className="form-label" htmlFor="coEmail">
-                      Email address
-                    </label>
-                    <input type="email" className="form-control" id="coEmail" placeholder="you@example.com" value={form.email} onChange={set('email')} required />
-                    <div className="invalid-feedback">Enter a valid email address.</div>
-                  </div>
-                  <div className="col-md-6">
-                    <label className="form-label" htmlFor="coPhone">
-                      Phone number
-                    </label>
-                    <input type="tel" className="form-control" id="coPhone" placeholder="+880 1XXX XXXXXX" value={form.phone} onChange={set('phone')} required />
-                    <div className="invalid-feedback">Enter your phone number.</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="panel checkout-panel">
-                <h5 className="checkout-panel-title">
                   <i className="bi bi-geo-alt"></i> Shipping Address
                 </h5>
                 <div className="row g-3">
@@ -250,6 +246,20 @@ export default function Checkout() {
                     </label>
                     <input type="text" className="form-control" id="coLast" placeholder="Last name" value={form.lastName} onChange={set('lastName')} required />
                     <div className="invalid-feedback">Enter your last name.</div>
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="coEmail">
+                      Email address
+                    </label>
+                    <input type="email" className="form-control" id="coEmail" placeholder="you@example.com" value={form.email} onChange={set('email')} required />
+                    <div className="invalid-feedback">Enter a valid email address.</div>
+                  </div>
+                  <div className="col-md-6">
+                    <label className="form-label" htmlFor="coPhone">
+                      Phone number
+                    </label>
+                    <input type="tel" className="form-control" id="coPhone" placeholder="+880 1XXX XXXXXX" value={form.phone} onChange={set('phone')} required />
+                    <div className="invalid-feedback">Enter your phone number.</div>
                   </div>
                   <div className="col-12">
                     <label className="form-label" htmlFor="coAddr">
