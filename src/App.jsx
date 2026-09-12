@@ -18,6 +18,7 @@ import RefundPolicy from './pages/RefundPolicy.jsx';
 import ReturnPolicy from './pages/ReturnPolicy.jsx';
 import TrackOrder from './pages/TrackOrder.jsx';
 import OrderComplete from './pages/OrderComplete.jsx';
+import OrderPaymentResult from './pages/OrderPaymentResult.jsx';
 import Dashboard from './pages/user/Dashboard.jsx';
 import PurchaseHistory from './pages/user/PurchaseHistory.jsx';
 import OrderDetail from './pages/user/OrderDetail.jsx';
@@ -51,6 +52,10 @@ export default function App() {
         <Route path="/return-policy" element={<ReturnPolicy />} />
         <Route path="/track-order" element={<TrackOrder />} />
         <Route path="/order-complete" element={<OrderComplete />} />
+        {/* landed on by the browser after an online payment gateway (SSLCommerz/
+            Bkash/Nagad/AamarPay) redirects back - see redirectToFrontendAfterPayment()
+            in the backend, which targets exactly this /order/{status} shape */}
+        <Route path="/order/:status" element={<OrderPaymentResult />} />
         <Route path="/user/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/user/purchase-history" element={<ProtectedRoute><PurchaseHistory /></ProtectedRoute>} />
         <Route path="/user/purchase-history/:id" element={<ProtectedRoute><OrderDetail /></ProtectedRoute>} />

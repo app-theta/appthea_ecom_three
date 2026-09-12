@@ -4576,6 +4576,10 @@ ul {
   text-align: center;
 }
 
+.order-complete-icon.is-cancel {
+  background: #fdecec;
+  color: #d13c3c;
+}
 .order-complete-icon {
   display: inline-flex;
   align-items: center;
