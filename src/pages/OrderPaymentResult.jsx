@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { checkout as checkoutApi } from '../api/endpoints.js';
 import { parseApiError } from '../api/errors.js';
 import { useBusiness } from '../context/BusinessContext.jsx';
+import { useCart } from '../context/CartContext.jsx';
 import { money } from '../utils/format.js';
 import { num } from '../utils/product.js';
 
@@ -22,11 +23,18 @@ export default function OrderPaymentResult() {
   const orderCode = params.get('order');
   const message = params.get('message');
   const { currencySymbol } = useBusiness();
+  const { items, clearCart } = useCart();
   const isSuccess = status === 'success';
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(isSuccess && Boolean(orderCode));
   const [error, setError] = useState('');
+
+  /* A gateway return means the order went through - the local cart is stale. */
+  useEffect(() => {
+    if (isSuccess && items.length) clearCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccess]);
 
   useEffect(() => {
     if (!isSuccess || !orderCode) return;
