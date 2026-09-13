@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import { money } from '../utils/format.js';
 
 export default function OrderComplete() {
@@ -9,6 +10,7 @@ export default function OrderComplete() {
   const navigate = useNavigate();
   const { isAuthed } = useAuth();
   const { currencySymbol } = useBusiness();
+  const toast = useToast();
   const order = location.state;
 
   /* Landing here without a real order (e.g. a direct link) has nothing to show. */
@@ -17,6 +19,17 @@ export default function OrderComplete() {
   }, [order, navigate]);
 
   if (!order) return null;
+
+  const orderNumber = order.invoiceNo || order.orderCode || '';
+  const copyOrderNumber = async () => {
+    if (!orderNumber) return;
+    try {
+      await navigator.clipboard.writeText(orderNumber);
+      toast.success('Order number copied');
+    } catch {
+      toast.error('Could not copy - please copy it manually');
+    }
+  };
 
   return (
     <>
@@ -56,10 +69,16 @@ export default function OrderComplete() {
 
         <div className="row g-4 order-complete-meta">
           <div className="col-6 col-md-4">
-            <div className="oc-meta-card">
+            <button
+              type="button"
+              className="oc-meta-card oc-meta-card-btn"
+              onClick={copyOrderNumber}
+              title="Click to copy"
+              disabled={!orderNumber}
+            >
               <span className="oc-meta-label">Order Number</span>
-              <strong>{order.invoiceNo || (order.orderCode ? `#${order.orderCode.slice(0, 8).toUpperCase()}` : '—')}</strong>
-            </div>
+              <strong>{orderNumber || '—'}</strong>
+            </button>
           </div>
           <div className="col-6 col-md-4">
             <div className="oc-meta-card">

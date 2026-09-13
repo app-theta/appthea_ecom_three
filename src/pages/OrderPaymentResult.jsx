@@ -4,6 +4,7 @@ import { checkout as checkoutApi } from '../api/endpoints.js';
 import { parseApiError } from '../api/errors.js';
 import { useBusiness } from '../context/BusinessContext.jsx';
 import { useCart } from '../context/CartContext.jsx';
+import { useToast } from '../context/ToastContext.jsx';
 import { money } from '../utils/format.js';
 import { num } from '../utils/product.js';
 
@@ -19,16 +20,35 @@ import { num } from '../utils/product.js';
  */
 export default function OrderPaymentResult() {
   const { status } = useParams();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const orderCode = params.get('order');
-  const message = params.get('message');
+  // Captured once on mount - the URL's `message` param is stripped right
+  // after (see below) so the address bar stays a clean `?order=...`.
+  const [message] = useState(() => params.get('message'));
   const { currencySymbol } = useBusiness();
   const { items, clearCart } = useCart();
+  const toast = useToast();
   const isSuccess = status === 'success';
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(isSuccess && Boolean(orderCode));
   const [error, setError] = useState('');
+
+  const copyOrderNumber = async (value) => {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      toast.success('Order number copied');
+    } catch {
+      toast.error('Could not copy - please copy it manually');
+    }
+  };
+
+  /* Drop the noisy `message` query param from the visible URL. */
+  useEffect(() => {
+    if (params.get('message')) setParams(orderCode ? { order: orderCode } : {}, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* A gateway return means the order went through - the local cart is stale. */
   useEffect(() => {
@@ -105,10 +125,15 @@ export default function OrderPaymentResult() {
 
               <div className="row g-4 order-complete-meta">
                 <div className="col-6 col-md-4">
-                  <div className="oc-meta-card">
+                  <button
+                    type="button"
+                    className="oc-meta-card oc-meta-card-btn"
+                    onClick={() => copyOrderNumber(order.invoice_no || order.unique_code)}
+                    title="Click to copy"
+                  >
                     <span className="oc-meta-label">Order Number</span>
                     <strong>{order.invoice_no || order.unique_code}</strong>
-                  </div>
+                  </button>
                 </div>
                 <div className="col-6 col-md-4">
                   <div className="oc-meta-card">
