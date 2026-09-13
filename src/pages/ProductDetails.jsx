@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/product/ProductCard.jsx';
 import ComboTiers from '../components/product/ComboTiers.jsx';
 import BundleSelector from '../components/product/BundleSelector.jsx';
+import Breadcrumb from '../components/layout/Breadcrumb.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
@@ -11,6 +12,7 @@ import { useToast } from '../context/ToastContext.jsx';
 import { useAsync } from '../hooks/useAsync.js';
 import { catalog, reviews as reviewsApi } from '../api/endpoints.js';
 import { money } from '../utils/format.js';
+import { showOffcanvas } from '../utils/offcanvas.js';
 import {
   barcodesOf, coloursOf, sizesOf, barcodePrice, productImages, paginated, plain,
   num, thumbOf, meaningfulVariantLabel, isSameCombo, isBundle, comboTiers, bundlesOf,
@@ -31,7 +33,7 @@ export default function ProductDetails() {
   const navigate = useNavigate();
   const { addItem, addComboItem, addBundleItem } = useCart();
   const { isAuthed } = useAuth();
-  const { currencySymbol, enabledPayments } = useBusiness();
+  const { currencySymbol, enabledPayments, features } = useBusiness();
   const wishlist = useWishlist();
   const toast = useToast();
 
@@ -170,7 +172,10 @@ export default function ProductDetails() {
       addItem(product, selectedBarcode, qty);
     }
     if (goToCheckout) navigate('/checkout');
-    else toast.success(`${product.name} added to cart`);
+    else {
+      toast.success(`${product.name} added to cart`);
+      if (features.open_cart) showOffcanvas('cartDrawer');
+    }
   };
 
   const onWish = () => {
@@ -279,21 +284,11 @@ export default function ProductDetails() {
       </div>
 
       {/* BREADCRUMB */}
-      <div className="pd-crumb-bar">
-        <div className="container">
-          <nav aria-label="breadcrumb">
-            <ol className="crumb crumb-left">
-              <li>
-                <Link to="/">Home</Link>
-              </li>
-              <li>
-                <Link to="/shop">Shop</Link>
-              </li>
-              <li aria-current="page">{product.name}</li>
-            </ol>
-          </nav>
-        </div>
-      </div>
+      <Breadcrumb items={[
+        { to: '/', label: 'Home' },
+        { to: '/shop', label: 'Shop' },
+        { label: product.name },
+      ]} />
 
       {/* PRODUCT DETAILS */}
       <section className="section pd-section">
@@ -435,9 +430,11 @@ export default function ProductDetails() {
                   </div>
                 </div>
 
-                <button type="button" className="pd-wish-link" onClick={onWish}>
-                  <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i> {wished ? 'In wishlist' : 'Add to wishlist'}
-                </button>
+                {features.user_wishlist && (
+                  <button type="button" className="pd-wish-link" onClick={onWish}>
+                    <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i> {wished ? 'In wishlist' : 'Add to wishlist'}
+                  </button>
+                )}
 
                 <ul className="qv-meta">
                   {enabledPayments.includes('Cash On Delivery') && (

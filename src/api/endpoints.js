@@ -40,6 +40,14 @@ export const home = {
   summary: (params, config) => get(`${F}/home/summary`, params, config),
 };
 
+/* ── Reels ────────────────────────────────────────────────────────────────── */
+export const reels = {
+  list: (params, config) => get(`${F}/reels`, params, config),
+  detail: (slug, config) => get(`${F}/reels/${slug}`, undefined, config),
+  view: (id) => post(`${F}/reels/${id}/view`),
+  like: (id) => post(`${F}/reels/${id}/like`),
+};
+
 /* ── Reviews ──────────────────────────────────────────────────────────────── */
 export const reviews = {
   list: (productId, params, config) => get(`${F}/product-review/list/${productId}`, params, config),

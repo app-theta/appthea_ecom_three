@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom';
 import { useCart } from '../../context/CartContext.jsx';
+import { useBusiness } from '../../context/BusinessContext.jsx';
 
 export default function MobileBottomNav() {
   const { count } = useCart();
+  const { features } = useBusiness();
 
   return (
     <nav className="mobile-tabbar d-lg-none">
@@ -15,10 +17,12 @@ export default function MobileBottomNav() {
         <i className="bi bi-grid-3x3-gap"></i>
         <span>Category</span>
       </button>
-      <NavLink to="/user/wishlist" className="mobile-tabbar-link">
-        <i className="bi bi-heart"></i>
-        <span>Wishlist</span>
-      </NavLink>
+      {features.user_wishlist && (
+        <NavLink to="/user/wishlist" className="mobile-tabbar-link">
+          <i className="bi bi-heart"></i>
+          <span>Wishlist</span>
+        </NavLink>
+      )}
       <NavLink to="/" end className="mobile-tabbar-home" aria-label="Home">
         <i className="bi bi-house-door-fill"></i>
       </NavLink>

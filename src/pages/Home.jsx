@@ -5,6 +5,7 @@ import CategorySlider from '../components/product/CategorySlider.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
 import { useAsync } from '../hooks/useAsync.js';
+import { useSeoMeta } from '../hooks/useSeoMeta.js';
 import { catalog, home } from '../api/endpoints.js';
 import { paginated } from '../utils/product.js';
 import { categoryNavTree } from '../utils/categoryTree.js';
@@ -58,6 +59,7 @@ function CategoryBlock({ category, isLast }) {
 }
 
 export default function Home() {
+  useSeoMeta('home');
   const { categories } = useBusiness();
   const topCategories = useMemo(() => categoryNavTree(categories).slice(0, 3), [categories]);
   const [activeDealCategory, setActiveDealCategory] = useState(null);

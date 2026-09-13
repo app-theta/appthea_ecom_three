@@ -17,7 +17,7 @@ const offerLinks = ['Flash Sale', 'Buy 1 Get 1', 'Clearance', 'Coupon Zone'];
 
 export default function SiteHeader() {
   const { count: cartCount } = useCart();
-  const { info, categories, currencySymbol } = useBusiness();
+  const { info, categories, currencySymbol, features } = useBusiness();
   const { isAuthed, customer } = useAuth();
   const { count: wishlistCount } = useWishlist();
   const location = useLocation();
@@ -308,6 +308,14 @@ export default function SiteHeader() {
                   </NavLink>
                 </li>
 
+                {features.product_reels && (
+                  <li>
+                    <NavLink to="reels" className="nav-link">
+                      Reels
+                    </NavLink>
+                  </li>
+                )}
+
                 <li
                   className={`js-dropdown${openDropdown === 'offer' ? ' open' : ''}`}
                   onMouseEnter={hoverOpenDropdown('offer')}
@@ -356,14 +364,16 @@ export default function SiteHeader() {
                 <i className="bi bi-search"></i>
               </button>
 
-              <Link
-                to="user/wishlist"
-                className="icon-btn d-none d-sm-inline-flex"
-                aria-label="Wishlist"
-              >
-                <i className="bi bi-heart"></i>
-                <span className="badge-count">{wishlistCount}</span>
-              </Link>
+              {features.user_wishlist && (
+                <Link
+                  to="user/wishlist"
+                  className="icon-btn d-none d-sm-inline-flex"
+                  aria-label="Wishlist"
+                >
+                  <i className="bi bi-heart"></i>
+                  <span className="badge-count">{wishlistCount}</span>
+                </Link>
+              )}
 
               <button
                 className="icon-btn"
@@ -541,6 +551,11 @@ export default function SiteHeader() {
             <li>
               <Link to="shop" onClick={closeMobileNav}>Shop</Link>
             </li>
+            {features.product_reels && (
+              <li>
+                <Link to="reels" onClick={closeMobileNav}>Reels</Link>
+              </li>
+            )}
             <li>
               <a
                 className="m-toggle collapsed"
@@ -576,11 +591,13 @@ export default function SiteHeader() {
           </ul>
 
           <div className="m-extra">
-            <Link to="user/wishlist" className="m-extra-link" onClick={closeMobileNav}>
-              <i className="bi bi-heart"></i>
-              Wishlist{' '}
-              <span className="badge-count static">{wishlistCount}</span>
-            </Link>
+            {features.user_wishlist && (
+              <Link to="user/wishlist" className="m-extra-link" onClick={closeMobileNav}>
+                <i className="bi bi-heart"></i>
+                Wishlist{' '}
+                <span className="badge-count static">{wishlistCount}</span>
+              </Link>
+            )}
             {isAuthed ? (
               <Link to="user/dashboard" className="m-extra-link" onClick={closeMobileNav}>
                 <i className="bi bi-person"></i>

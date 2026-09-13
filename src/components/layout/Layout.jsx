@@ -5,6 +5,7 @@ import Footer from './Footer.jsx';
 import MobileBottomNav from './MobileBottomNav.jsx';
 import CartDrawer from './CartDrawer.jsx';
 import QuickViewDrawer from './QuickViewDrawer.jsx';
+import NewsletterPopup from './NewsletterPopup.jsx';
 
 export default function Layout() {
   const { pathname } = useLocation();
@@ -18,6 +19,7 @@ export default function Layout() {
       <SiteHeader />
       <CartDrawer />
       <QuickViewDrawer />
+      <NewsletterPopup />
       <Outlet />
       <Footer />
       <MobileBottomNav />

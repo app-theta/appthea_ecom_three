@@ -1,5 +1,9 @@
+import { Navigate } from 'react-router-dom';
 import DashLayout from '../../components/user/DashLayout.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
+import { useAsync } from '../../hooks/useAsync.js';
+import { account } from '../../api/endpoints.js';
+import { num } from '../../utils/product.js';
 
 const history = [
   { date: 'Aug 12, 2026', activity: 'Purchase — order #APT-10482', points: '+146 pts', badge: 'is-done' },
@@ -9,7 +13,13 @@ const history = [
 ];
 
 export default function EarningPoints() {
-  const { currencySymbol } = useBusiness();
+  const { currencySymbol, features } = useBusiness();
+  const { data } = useAsync((signal) => account.dashboard({ signal }), [], { skip: !features.enable_customer_point_commission });
+
+  if (!features.enable_customer_point_commission) return <Navigate to="/user/dashboard" replace />;
+
+  const points = num(data?.customer?.point_balance);
+
   return (
     <DashLayout title="Earning Points">
       <div className="row g-4">
@@ -18,9 +28,9 @@ export default function EarningPoints() {
             <div className="wallet-card-main">
               <span className="wallet-card-label">Club Points Balance</span>
               <span className="wallet-card-amount">
-                240 <small>pts</small>
+                {points} <small>pts</small>
               </span>
-              <span className="wallet-card-sub">&#8776; {currencySymbol}2.40 wallet credit</span>
+              <span className="wallet-card-sub">&#8776; {currencySymbol}{(points / 100).toFixed(2)} wallet credit</span>
               <button type="button" className="btn btn-accent wallet-recharge-btn">
                 <i className="bi bi-arrow-repeat"></i> Convert to Wallet Credit
               </button>

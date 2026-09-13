@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '../context/ToastContext.jsx';
+import { useSeoMeta } from '../hooks/useSeoMeta.js';
 
 const infoCards = [
   { icon: 'bi-geo-alt', title: 'Visit the studio', lines: ['House 42, Road 6, Dhanmondi', 'Dhaka 1205, Bangladesh'] },
@@ -15,6 +16,7 @@ const faqs = [
 ];
 
 export default function Contact() {
+  useSeoMeta('contact');
   const [validated, setValidated] = useState(false);
   const toast = useToast();
 

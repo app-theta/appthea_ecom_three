@@ -7,6 +7,7 @@ import { useBusiness } from '../../context/BusinessContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { money } from '../../utils/format.js';
+import { showOffcanvas } from '../../utils/offcanvas.js';
 import {
   barcodesOf, coloursOf, sizesOf, barcodePrice, productImages, plain, isCombo,
 } from '../../utils/product.js';
@@ -15,7 +16,7 @@ export default function QuickViewDrawer() {
   const { product } = useQuickView();
   const { addItem } = useCart();
   const { isAuthed } = useAuth();
-  const { currencySymbol } = useBusiness();
+  const { currencySymbol, features } = useBusiness();
   const wishlist = useWishlist();
   const toast = useToast();
   const navigate = useNavigate();
@@ -71,16 +72,19 @@ export default function QuickViewDrawer() {
     }).catch(() => { });
   };
 
+  const closeDrawer = () => {
+    if (!drawerRef.current || !window.bootstrap) return;
+    window.bootstrap.Offcanvas.getOrCreateInstance(drawerRef.current).hide();
+  };
+
   const buy = (goToCheckout) => {
     if (needsVariant) { toast.error('Please select a variant'); return; }
     addItem(product, selectedBarcode, qty);
     if (goToCheckout) navigate('/checkout');
-    else toast.success(`${product.name} added to cart`);
-  };
-
-  const closeDrawer = () => {
-    if (!drawerRef.current || !window.bootstrap) return;
-    window.bootstrap.Offcanvas.getOrCreateInstance(drawerRef.current).hide();
+    else {
+      toast.success(`${product.name} added to cart`);
+      if (features.open_cart) { closeDrawer(); showOffcanvas('cartDrawer'); }
+    }
   };
 
   return (
@@ -200,9 +204,11 @@ export default function QuickViewDrawer() {
             </div>
           )}
 
-          <button type="button" className="pd-wish-link" onClick={onWish}>
-            <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i> {wished ? 'In wishlist' : 'Add to wishlist'}
-          </button>
+          {features.user_wishlist && (
+            <button type="button" className="pd-wish-link" onClick={onWish}>
+              <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i> {wished ? 'In wishlist' : 'Add to wishlist'}
+            </button>
+          )}
 
           <ul className="qv-meta">
             <li>

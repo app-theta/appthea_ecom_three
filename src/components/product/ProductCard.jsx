@@ -6,6 +6,7 @@ import { useBusiness } from '../../context/BusinessContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import { money } from '../../utils/format.js';
+import { showOffcanvas } from '../../utils/offcanvas.js';
 import {
   headlinePrice, productImages, productInStock, primaryBarcode, barcodesOf, isCombo,
 } from '../../utils/product.js';
@@ -31,7 +32,7 @@ export default function ProductCard({ product }) {
   const { openQuickView } = useQuickView();
   const { addItem } = useCart();
   const { isAuthed } = useAuth();
-  const { currencySymbol } = useBusiness();
+  const { currencySymbol, features } = useBusiness();
   const wishlist = useWishlist();
   const toast = useToast();
   const navigate = useNavigate();
@@ -59,6 +60,7 @@ export default function ProductCard({ product }) {
     }
     addItem(product, primaryBarcode(product), 1);
     toast.success(`${product.name} added to cart`);
+    if (features.open_cart) showOffcanvas('cartDrawer');
   };
 
   return (
@@ -78,9 +80,11 @@ export default function ProductCard({ product }) {
           )}
         </Link>
         <div className="product-hover-actions">
-          <button type="button" className="product-action" aria-label="Add to wishlist" aria-pressed={wished} onClick={onWish}>
-            <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i>
-          </button>
+          {features.user_wishlist && (
+            <button type="button" className="product-action" aria-label="Add to wishlist" aria-pressed={wished} onClick={onWish}>
+              <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i>
+            </button>
+          )}
           <button
             type="button"
             className="product-action js-quickview-trigger"

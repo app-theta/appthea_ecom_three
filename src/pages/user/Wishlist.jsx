@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import DashLayout from '../../components/user/DashLayout.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useCart } from '../../context/CartContext.jsx';
@@ -10,8 +10,10 @@ import { headlinePrice, productImages, productInStock, primaryBarcode, barcodesO
 export default function Wishlist() {
   const wishlist = useWishlist();
   const { addItem } = useCart();
-  const { currencySymbol } = useBusiness();
+  const { currencySymbol, features } = useBusiness();
   const toast = useToast();
+
+  if (!features.user_wishlist) return <Navigate to="/user/dashboard" replace />;
 
   const remove = async (productId, name) => {
     try {

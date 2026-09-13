@@ -13,7 +13,7 @@ import { headlinePrice, num } from '../../utils/product.js';
 export default function Dashboard() {
   const { customer } = useAuth();
   const { count: cartCount } = useCart();
-  const { currencySymbol } = useBusiness();
+  const { currencySymbol, features } = useBusiness();
   const wishlist = useWishlist();
   const { data } = useAsync((signal) => account.dashboard({ signal }), []);
 
@@ -120,28 +120,32 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="dash-block-head mt-2">
-        <h5>My Wishlist</h5>
-        <Link to="/user/wishlist" className="link-accent">
-          View All
-        </Link>
-      </div>
-      <div className="row g-4">
-        {wishlist.rows.length === 0 ? (
-          <div className="col-12">
-            <p className="text-muted">No wishlist items yet.</p>
+      {features.user_wishlist && (
+        <>
+          <div className="dash-block-head mt-2">
+            <h5>My Wishlist</h5>
+            <Link to="/user/wishlist" className="link-accent">
+              View All
+            </Link>
           </div>
-        ) : wishlist.rows.slice(0, 4).map((r) => {
-          const p = r.product;
-          if (!p) return null;
-          const price = headlinePrice(p);
-          return (
-            <div className="col-6 col-md-3" key={r.id}>
-              <MiniProductCard name={p.name} image={p.thumbnail} priceNow={money(price.now, currencySymbol)} slug={p.slug} />
-            </div>
-          );
-        })}
-      </div>
+          <div className="row g-4">
+            {wishlist.rows.length === 0 ? (
+              <div className="col-12">
+                <p className="text-muted">No wishlist items yet.</p>
+              </div>
+            ) : wishlist.rows.slice(0, 4).map((r) => {
+              const p = r.product;
+              if (!p) return null;
+              const price = headlinePrice(p);
+              return (
+                <div className="col-6 col-md-3" key={r.id}>
+                  <MiniProductCard name={p.name} image={p.thumbnail} priceNow={money(price.now, currencySymbol)} slug={p.slug} />
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
     </DashLayout>
   );
 }

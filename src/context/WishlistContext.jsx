@@ -36,6 +36,7 @@ export function WishlistProvider({ children }) {
 
   /** Adds or removes; returns 'added' | 'removed'. */
   const toggle = useCallback(async (productId) => {
+    if (!enabled) return null;
     const existing = idsByProduct.get(Number(productId));
     if (existing) {
       await account.removeWishlist(existing);
@@ -45,7 +46,7 @@ export function WishlistProvider({ children }) {
     await account.addWishlist(productId);
     await load();
     return 'added';
-  }, [idsByProduct, load]);
+  }, [enabled, idsByProduct, load]);
 
   const value = useMemo(
     () => ({ enabled, rows, loading, has, toggle, reload: load, count: rows.length }),
