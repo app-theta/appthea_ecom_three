@@ -308,13 +308,7 @@ export default function SiteHeader() {
                   </NavLink>
                 </li>
 
-                {features.product_reels && (
-                  <li>
-                    <NavLink to="reels" className="nav-link">
-                      Reels
-                    </NavLink>
-                  </li>
-                )}
+
 
                 <li
                   className={`js-dropdown${openDropdown === 'offer' ? ' open' : ''}`}
@@ -330,6 +324,18 @@ export default function SiteHeader() {
                     Offer <i className="bi bi-chevron-down caret"></i>
                   </a>
                   <ul className="drop-menu js-dropdown-menu">
+                    {features.product_reels && (
+                      <li>
+                        <NavLink to="reels">
+                          Reels
+                        </NavLink>
+                      </li>
+                    )}
+                    <li>
+                      <NavLink to="contact">
+                        Contact Us
+                      </NavLink>
+                    </li>
                     {offerLinks.map((item) => (
                       <li key={item}>
                         <a href="#">{item}</a>
@@ -337,18 +343,16 @@ export default function SiteHeader() {
                     ))}
                   </ul>
                 </li>
-
-                <li>
-                  <NavLink to="contact" className="nav-link">
-                    Contact Us
-                  </NavLink>
-                </li>
               </ul>
             </nav>
 
             {/* CENTER : logo */}
             <Link to="" className="brand">
-              {info?.name || 'AppTheta Ecom'}<span>.</span>
+              {info?.logo ? (
+                <img src={info.logo} alt={info?.name || 'Home'} className="brand-logo-img" />
+              ) : (
+                <>{info?.name || 'AppTheta Ecom'}<span>.</span></>
+              )}
             </Link>
 
             {/* RIGHT : action icons */}
@@ -512,7 +516,11 @@ export default function SiteHeader() {
       >
         <div className="offcanvas-header">
           <span className="brand brand-sm" id="mobileNavLabel">
-            {info?.name || 'AppTheta Ecom'}<span>.</span>
+            {info?.logo ? (
+              <img src={info.logo} alt={info?.name || 'Home'} className="brand-logo-img" />
+            ) : (
+              <>{info?.name || 'AppTheta Ecom'}<span>.</span></>
+            )}
           </span>
           <button
             type="button"

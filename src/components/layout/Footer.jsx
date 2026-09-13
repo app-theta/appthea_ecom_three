@@ -14,8 +14,11 @@ export default function Footer() {
         <div className="row g-4">
           <div className="col-lg-4 col-md-6">
             <Link to="/" className="brand brand-footer">
-              {name}
-              <span>.</span>
+              {info?.logo ? (
+                <img src={info.logo} alt={name} className="brand-logo-img" />
+              ) : (
+                <>{name}<span>.</span></>
+              )}
             </Link>
             <p className="footer-text">
               Everyday wear made to last &mdash; dresses, accessories and winter staples, shipped

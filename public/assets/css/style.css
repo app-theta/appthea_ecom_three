@@ -332,6 +332,12 @@ ul {
   font-size: clamp(18px, 6vw, var(--fs-5xl));
 }
 
+.brand-logo-img {
+  display: block;
+  max-height: 40px;
+  width: auto;
+}
+
 /* left nav */
 .nav-list {
   display: flex;
