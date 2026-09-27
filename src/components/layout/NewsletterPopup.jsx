@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useBusiness } from '../../context/BusinessContext.jsx';
+import { useSubscribe } from '../../hooks/useSubscribe.js';
 
 const SEEN_KEY = 'apptheta_newsletter_seen';
 
@@ -11,7 +12,7 @@ export default function NewsletterPopup() {
   const { features, info } = useBusiness();
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState('');
-  const [done, setDone] = useState(false);
+  const newsletter = useSubscribe();
   const modalRef = useRef(null);
   const instanceRef = useRef(null);
 
@@ -42,9 +43,11 @@ export default function NewsletterPopup() {
     return () => window.clearTimeout(id);
   }, [features.newsletter_popup]);
 
-  const subscribe = (e) => {
+  const subscribe = async (e) => {
     e.preventDefault();
-    setDone(true);
+    if (await newsletter.subscribe(email)) {
+      try { localStorage.setItem(SEEN_KEY, '1'); } catch { /* ignore */ }
+    }
   };
 
   return (
@@ -56,7 +59,7 @@ export default function NewsletterPopup() {
             <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div className="modal-body">
-            {done ? (
+            {newsletter.done ? (
               <p className="text-accent mb-0">Thanks for subscribing!</p>
             ) : (
               <>
@@ -71,7 +74,8 @@ export default function NewsletterPopup() {
                     placeholder="you@example.com"
                     aria-label="Email address"
                   />
-                  <button type="submit" className="btn btn-accent w-100">Subscribe</button>
+                  {newsletter.error && <p className="text-danger small mb-2">{newsletter.error}</p>}
+                  <button type="submit" className="btn btn-accent w-100" disabled={newsletter.busy}>Subscribe</button>
                 </form>
               </>
             )}

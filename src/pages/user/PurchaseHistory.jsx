@@ -6,6 +6,7 @@ import { useAsync } from '../../hooks/useAsync.js';
 import { account } from '../../api/endpoints.js';
 import { money, statusTone, dateShort } from '../../utils/format.js';
 import { paginated, num } from '../../utils/product.js';
+import { parseApiError } from '../../api/errors.js';
 
 export default function PurchaseHistory() {
   const { currencySymbol } = useBusiness();
@@ -14,12 +15,12 @@ export default function PurchaseHistory() {
   const { rows, total } = paginated(data);
 
   const cancelOrder = async (id) => {
-    if (!window.confirm('Cancel this order?')) return;
+    if (!window.confirm('Cancel this order? This cannot be undone.')) return;
     try {
-      await account.deleteOrder(id);
-      toast.success('Order cancelled');
+      await account.cancelOrder(id);
+      toast.success('Your order was cancelled');
       reload();
-    } catch { toast.error('Could not cancel this order'); }
+    } catch (e) { toast.error(parseApiError(e).message); }
   };
 
   const downloadInvoice = async (id) => {
@@ -37,7 +38,7 @@ export default function PurchaseHistory() {
           <span className="text-muted">{total} orders</span>
         </div>
         <div className="table-responsive">
-          {loading ? (
+          {loading && !data ? (
             <p className="p-4 mb-0">Loading…</p>
           ) : rows.length === 0 ? (
             <p className="p-4 mb-0">You haven&rsquo;t placed any orders yet.</p>
@@ -72,7 +73,7 @@ export default function PurchaseHistory() {
                       <button type="button" className="btn btn-outline-dark btn-sm" onClick={() => downloadInvoice(o.id)}>
                         Invoice
                       </button>
-                      {['Pending', 'Processing'].includes(o.sale_status) && (
+                      {o.can_cancel && (
                         <button type="button" className="btn btn-outline-dark btn-sm text-danger" onClick={() => cancelOrder(o.id)}>
                           Cancel
                         </button>

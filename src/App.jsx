@@ -10,6 +10,8 @@ import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import ForgotPassword from './pages/ForgotPassword.jsx';
 import Blog from './pages/Blog.jsx';
+import BlogPost from './pages/BlogPost.jsx';
+import Faq from './pages/Faq.jsx';
 import Reels from './pages/Reels.jsx';
 import Contact from './pages/Contact.jsx';
 import Privacy from './pages/Privacy.jsx';
@@ -44,7 +46,11 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* the mailed reset link: /reset-password?token=…&email=… */}
+        <Route path="/reset-password" element={<ForgotPassword />} />
         <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
+        <Route path="/faq" element={<Faq />} />
         <Route path="/reels" element={<Reels />} />
         <Route path="/reels/:slug" element={<Reels />} />
         <Route path="/contact" element={<Contact />} />

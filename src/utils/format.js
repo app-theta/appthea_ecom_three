@@ -13,6 +13,14 @@ export function statusTone(status) {
   return 'is-pending';
 }
 
+/** A sale return status (Requested/Approved/Rejected/Completed) as a .dash-badge tone class. */
+export function returnTone(status) {
+  if (status === 'Completed') return 'is-done';
+  if (status === 'Rejected') return 'is-danger';
+  if (status === 'Approved') return 'is-active';
+  return 'is-pending';
+}
+
 export function dateShort(value) {
   if (!value) return '';
   const d = new Date(String(value).replace(' ', 'T'));

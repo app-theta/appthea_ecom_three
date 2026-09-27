@@ -4,6 +4,7 @@ import { useCart } from '../../context/CartContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
+import { useCompare } from '../../context/CompareContext.jsx';
 import { catalog } from '../../api/endpoints.js';
 import { categoryColumns } from '../../utils/categoryTree.js';
 import { money } from '../../utils/format.js';
@@ -13,13 +14,12 @@ const isDesktop = () => window.innerWidth >= 992;
 
 const langOptions = ['English (USD)', 'বাংলা (BDT)', 'العربية (AED)', 'Français (EUR)'];
 
-const offerLinks = ['Flash Sale', 'Buy 1 Get 1', 'Clearance', 'Coupon Zone'];
-
 export default function SiteHeader() {
   const { count: cartCount } = useCart();
   const { info, categories, currencySymbol, features } = useBusiness();
   const { isAuthed, customer } = useAuth();
   const { count: wishlistCount } = useWishlist();
+  const { count: compareCount } = useCompare();
   const location = useLocation();
   const navigate = useNavigate();
   const isHome = location.pathname === '/';
@@ -163,21 +163,19 @@ export default function SiteHeader() {
         <div className="container">
           <div className="topbar-inner">
             <ul className="topbar-social">
-              <li>
-                <a href={info?.facebook_link || '#'} aria-label="Facebook">
-                  <i className="bi bi-facebook"></i>
-                </a>
-              </li>
-              <li>
-                <a href={info?.instagram_link || '#'} aria-label="Instagram">
-                  <i className="bi bi-instagram"></i>
-                </a>
-              </li>
-              <li>
-                <a href="#" aria-label="LinkedIn">
-                  <i className="bi bi-linkedin"></i>
-                </a>
-              </li>
+              {/* only the networks the shop has filled in */}
+              {[
+                ['facebook_link', 'Facebook', 'bi-facebook'],
+                ['instagram_link', 'Instagram', 'bi-instagram'],
+                ['linkedin_link', 'LinkedIn', 'bi-linkedin'],
+                ['youtube_link', 'YouTube', 'bi-youtube'],
+              ].filter(([field]) => info?.[field]).map(([field, label, icon]) => (
+                <li key={field}>
+                  <a href={info[field]} aria-label={label} target="_blank" rel="noreferrer">
+                    <i className={`bi ${icon}`}></i>
+                  </a>
+                </li>
+              ))}
             </ul>
 
             {isHome && (
@@ -321,7 +319,7 @@ export default function SiteHeader() {
                     aria-expanded={openDropdown === 'offer'}
                     onClick={toggleDropdown('offer')}
                   >
-                    Offer <i className="bi bi-chevron-down caret"></i>
+                    More <i className="bi bi-chevron-down caret"></i>
                   </a>
                   <ul className="drop-menu js-dropdown-menu">
                     {features.product_reels && (
@@ -332,15 +330,20 @@ export default function SiteHeader() {
                       </li>
                     )}
                     <li>
+                      <NavLink to="blog">
+                        Blog
+                      </NavLink>
+                    </li>
+                    <li>
+                      <NavLink to="faq">
+                        FAQ
+                      </NavLink>
+                    </li>
+                    <li>
                       <NavLink to="contact">
                         Contact Us
                       </NavLink>
                     </li>
-                    {offerLinks.map((item) => (
-                      <li key={item}>
-                        <a href="#">{item}</a>
-                      </li>
-                    ))}
                   </ul>
                 </li>
               </ul>
@@ -376,6 +379,14 @@ export default function SiteHeader() {
                 >
                   <i className="bi bi-heart"></i>
                   <span className="badge-count">{wishlistCount}</span>
+                </Link>
+              )}
+
+              {/* shows once something is picked for comparison */}
+              {compareCount > 0 && (
+                <Link to="user/compare" className="icon-btn d-none d-sm-inline-flex" aria-label={`Compare (${compareCount})`}>
+                  <i className="bi bi-arrow-left-right"></i>
+                  <span className="badge-count">{compareCount}</span>
                 </Link>
               )}
 
@@ -565,30 +576,13 @@ export default function SiteHeader() {
               </li>
             )}
             <li>
-              <a
-                className="m-toggle collapsed"
-                data-bs-toggle="collapse"
-                href="#mOffer"
-                role="button"
-                aria-expanded="false"
-              >
-                Offer <i className="bi bi-chevron-down"></i>
-              </a>
-              <div className="collapse" id="mOffer">
-                <div className="m-sub">
-                  <ul>
-                    {offerLinks.map((item) => (
-                      <li key={item}>
-                        <a href="#">{item}</a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </li>
-            <li>
               <Link to="blog" onClick={closeMobileNav}>
                 Blog
+              </Link>
+            </li>
+            <li>
+              <Link to="faq" onClick={closeMobileNav}>
+                FAQ
               </Link>
             </li>
             <li>
@@ -604,6 +598,13 @@ export default function SiteHeader() {
                 <i className="bi bi-heart"></i>
                 Wishlist{' '}
                 <span className="badge-count static">{wishlistCount}</span>
+              </Link>
+            )}
+            {compareCount > 0 && (
+              <Link to="user/compare" className="m-extra-link" onClick={closeMobileNav}>
+                <i className="bi bi-arrow-left-right"></i>
+                Compare{' '}
+                <span className="badge-count static">{compareCount}</span>
               </Link>
             )}
             {isAuthed ? (

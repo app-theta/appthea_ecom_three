@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useCompare, compareMessage } from '../context/CompareContext.jsx';
 import { useAsync } from '../hooks/useAsync.js';
 import { catalog, reviews as reviewsApi } from '../api/endpoints.js';
 import { money } from '../utils/format.js';
@@ -35,6 +36,7 @@ export default function ProductDetails() {
   const { isAuthed } = useAuth();
   const { currencySymbol, enabledPayments, features } = useBusiness();
   const wishlist = useWishlist();
+  const compare = useCompare();
   const toast = useToast();
 
   const { data: product, loading, error, reload: reloadProduct } = useAsync((signal) => catalog.product(slug, { signal }), [slug]);
@@ -183,6 +185,11 @@ export default function ProductDetails() {
     wishlist.toggle(product.id).then((action) => {
       toast.success(action === 'added' ? 'Added to wishlist' : 'Removed from wishlist');
     }).catch(() => toast.error('Something went wrong'));
+  };
+
+  const onCompare = () => {
+    const result = compare.toggle(product);
+    (result === 'full' ? toast.error : toast.success)(compareMessage(result, product.name));
   };
 
   const onSubmitReview = async (e) => {
@@ -430,11 +437,21 @@ export default function ProductDetails() {
                   </div>
                 </div>
 
-                {features.user_wishlist && (
-                  <button type="button" className="pd-wish-link" onClick={onWish}>
-                    <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i> {wished ? 'In wishlist' : 'Add to wishlist'}
+                <div className="pd-links">
+                  {features.user_wishlist && (
+                    <button type="button" className="pd-wish-link" onClick={onWish}>
+                      <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i> {wished ? 'In wishlist' : 'Add to wishlist'}
+                    </button>
+                  )}
+                  <button type="button" className="pd-wish-link" onClick={onCompare} aria-pressed={compare.has(product.id)}>
+                    <i className="bi bi-arrow-left-right"></i> {compare.has(product.id) ? 'In compare' : 'Add to compare'}
                   </button>
-                )}
+                  {compare.count > 0 && (
+                    <Link to="/user/compare" className="pd-wish-link">
+                      <i className="bi bi-layout-three-columns"></i> Compare ({compare.count})
+                    </Link>
+                  )}
+                </div>
 
                 <ul className="qv-meta">
                   {enabledPayments.includes('Cash On Delivery') && (

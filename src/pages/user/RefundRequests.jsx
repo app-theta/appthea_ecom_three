@@ -1,124 +1,92 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DashLayout from '../../components/user/DashLayout.jsx';
-import { useToast } from '../../context/ToastContext.jsx';
+import { useBusiness } from '../../context/BusinessContext.jsx';
+import { useAsync } from '../../hooks/useAsync.js';
+import { account, returns as returnsApi } from '../../api/endpoints.js';
+import { money, dateShort, returnTone } from '../../utils/format.js';
+import { paginated } from '../../utils/product.js';
 
-const initialRefunds = [
-  { order: '#APT-09954', product: 'Everyday Denim Jacket', reason: 'Wrong size', date: 'Jun 24, 2026', status: 'Approved', badge: 'is-done' },
-  { order: '#APT-10098', product: 'Silk Printed Neckties', reason: 'Changed my mind', date: 'Jul 11, 2026', status: 'Pending', badge: 'is-pending' },
-];
-
+/**
+ * Returns & refunds: the delivered orders the customer can still ask a return for (the request is
+ * made on the order's page, item by item), and every request made so far.
+ */
 export default function RefundRequests() {
-  const [refunds, setRefunds] = useState(initialRefunds);
-  const [validated, setValidated] = useState(false);
-  const toast = useToast();
-
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (!e.currentTarget.checkValidity()) {
-      e.stopPropagation();
-      setValidated(true);
-      return;
-    }
-    const form = e.currentTarget;
-    setRefunds((prev) => [
-      { order: form.rfOrder.value, product: 'Order item', reason: form.rfReason.value, date: 'Today', status: 'Pending', badge: 'is-pending' },
-      ...prev,
-    ]);
-    toast.success('Your refund request has been submitted');
-    if (window.bootstrap) {
-      const modalEl = document.getElementById('newRefundModal');
-      window.bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-    }
-    form.reset();
-    setValidated(false);
-  };
+  const { currencySymbol } = useBusiness();
+  const mine = useAsync((signal) => returnsApi.mine({ per_page: 50 }, { signal }), []);
+  const delivered = useAsync((signal) => account.orders({ status: 'Delivery', per_page: 20 }, { signal }), []);
+  const requests = paginated(mine.data).rows;
+  const orders = paginated(delivered.data).rows;
+  // an order with a request still open can't take another one yet
+  const inProgress = new Set(requests.filter((r) => ['Requested', 'Approved'].includes(r.status)).map((r) => r.order?.id));
 
   return (
     <DashLayout title="Refund Requests">
+      <div className="panel mb-4">
+        <div className="dash-block-head">
+          <h5>Ask for a return</h5>
+          <span className="text-muted">Delivered orders</span>
+        </div>
+        {delivered.loading ? (
+          <p className="mb-0">Loading…</p>
+        ) : orders.length === 0 ? (
+          <p className="text-muted mb-0">Only delivered orders can be returned. You have none yet.</p>
+        ) : (
+          orders.map((o) => (
+            <div key={o.id} className="d-flex align-items-center justify-content-between gap-3 py-2 border-bottom">
+              <span><strong>{o.invoice_no}</strong> <small className="text-muted">· delivered order from {dateShort(o.date)}</small></span>
+              {inProgress.has(o.id)
+                ? <span className="dash-badge is-pending">Return in progress</span>
+                : <Link className="btn btn-outline-dark btn-sm" to={`/user/purchase-history/${o.id}#returns`}>Return items</Link>}
+            </div>
+          ))
+        )}
+      </div>
+
       <div className="panel dash-table-panel">
         <div className="dash-block-head">
           <h5>Your Refund Requests</h5>
-          <button type="button" className="btn btn-accent btn-sm" data-bs-toggle="modal" data-bs-target="#newRefundModal">
-            <i className="bi bi-plus-lg"></i> New Refund Request
-          </button>
+          <span className="text-muted">{requests.length} requests</span>
         </div>
         <div className="table-responsive">
-          <table className="table dash-table">
-            <thead>
-              <tr>
-                <th>Order</th>
-                <th>Product</th>
-                <th>Reason</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {refunds.map((r) => (
-                <tr key={r.order + r.product}>
-                  <td data-label="Order">
-                    <Link to="/track-order" className="link-accent">
-                      {r.order}
-                    </Link>
-                  </td>
-                  <td data-label="Product">{r.product}</td>
-                  <td data-label="Reason">{r.reason}</td>
-                  <td data-label="Date">{r.date}</td>
-                  <td data-label="Status">
-                    <span className={`dash-badge ${r.badge}`}>{r.status}</span>
-                  </td>
+          {mine.loading ? (
+            <p className="p-4 mb-0">Loading…</p>
+          ) : mine.error ? (
+            <p className="p-4 mb-0 text-danger">{mine.error.message}</p>
+          ) : requests.length === 0 ? (
+            <p className="p-4 mb-0">You have not asked for a return yet.</p>
+          ) : (
+            <table className="table dash-table">
+              <thead>
+                <tr>
+                  <th>Request</th>
+                  <th>Order</th>
+                  <th>Items</th>
+                  <th>Reason</th>
+                  <th>Date</th>
+                  <th>Value</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="modal fade" id="newRefundModal" tabIndex="-1" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content review-modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">New Refund Request</h5>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="modal-body">
-              <form className={`row g-3 needs-validation${validated ? ' was-validated' : ''}`} noValidate onSubmit={onSubmit}>
-                <div className="col-12">
-                  <label className="form-label" htmlFor="rfOrder">
-                    Order number
-                  </label>
-                  <input type="text" name="rfOrder" className="form-control" id="rfOrder" placeholder="e.g. APT-10482" required />
-                  <div className="invalid-feedback">Enter your order number.</div>
-                </div>
-                <div className="col-12">
-                  <label className="form-label" htmlFor="rfReason">
-                    Reason
-                  </label>
-                  <select className="form-select" name="rfReason" id="rfReason" defaultValue="" required>
-                    <option value="" disabled>
-                      Choose a reason
-                    </option>
-                    <option>Wrong size</option>
-                    <option>Item damaged</option>
-                    <option>Not as described</option>
-                    <option>Changed my mind</option>
-                  </select>
-                </div>
-                <div className="col-12">
-                  <label className="form-label" htmlFor="rfNote">
-                    Additional details
-                  </label>
-                  <textarea className="form-control" id="rfNote" rows="3" placeholder="Tell us more (optional)"></textarea>
-                </div>
-                <div className="col-12">
-                  <button type="submit" className="btn btn-accent w-100">
-                    Submit Request
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
+              </thead>
+              <tbody>
+                {requests.map((r) => (
+                  <tr key={r.id}>
+                    <td data-label="Request">{r.return_no}</td>
+                    <td data-label="Order">
+                      <Link to={`/user/purchase-history/${r.order?.id}`} className="link-accent">{r.order?.invoice_no}</Link>
+                    </td>
+                    <td data-label="Items">{r.items.map((line) => `${line.product} × ${line.quantity}`).join(', ')}</td>
+                    <td data-label="Reason">{r.reason}</td>
+                    <td data-label="Date">{dateShort(r.requested_at)}</td>
+                    <td data-label="Value">
+                      {money(r.total_amount, currencySymbol)}
+                      {r.refunded_amount > 0 && <small className="d-block text-muted">refunded {money(r.refunded_amount, currencySymbol)}</small>}
+                    </td>
+                    <td data-label="Status"><span className={`dash-badge ${returnTone(r.status)}`}>{r.status}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </DashLayout>

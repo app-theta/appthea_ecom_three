@@ -5,22 +5,38 @@ import { useAsync } from '../../hooks/useAsync.js';
 import { account } from '../../api/endpoints.js';
 import { money, statusTone, dateShort } from '../../utils/format.js';
 import { num } from '../../utils/product.js';
+import { parseApiError } from '../../api/errors.js';
+import { useToast } from '../../context/ToastContext.jsx';
+import OrderReturns from '../../components/user/OrderReturns.jsx';
 
 export default function OrderDetail() {
   const { id } = useParams();
   const { currencySymbol } = useBusiness();
-  const { data, loading, error } = useAsync((signal) => account.orderDetails(id, { signal }), [id]);
+  const toast = useToast();
+  const { data, loading, error, reload } = useAsync((signal) => account.orderDetails(id, { signal }), [id]);
   const order = data?.order;
+
+  const cancel = async () => {
+    if (!window.confirm('Cancel this order? This cannot be undone.')) return;
+    try {
+      await account.cancelOrder(order.id);
+      toast.success('Your order was cancelled');
+      reload();
+    } catch (e) { toast.error(parseApiError(e).message); }
+  };
 
   return (
     <DashLayout title={order?.invoice_no || order?.unique_code || 'Order'}>
-      <div className="mb-3">
+      <div className="mb-3 d-flex align-items-center justify-content-between gap-2 flex-wrap">
         <Link to="/user/purchase-history" className="link-accent">
           <i className="bi bi-arrow-left"></i> Back to orders
         </Link>
+        {order?.can_cancel && (
+          <button type="button" className="btn btn-outline-dark btn-sm text-danger" onClick={cancel}>Cancel order</button>
+        )}
       </div>
 
-      {loading ? (
+      {loading && !data ? (
         <p>Loading…</p>
       ) : error || !order ? (
         <p>{error?.message || 'Order not found.'}</p>
@@ -39,7 +55,12 @@ export default function OrderDetail() {
                       <img src={item.product?.thumbnail} alt="" loading="lazy" />
                       <span className="mini-cart-qty">{item.quantity}</span>
                     </div>
-                    <span className="mini-cart-name">{item.product?.name}</span>
+                    <span className="mini-cart-name">
+                      {item.product?.name}
+                      <small className="d-block text-muted">
+                        {item.barcode?.combination ? `${item.barcode.combination} · ` : ''}{money(num(item.selling_price), currencySymbol)} × {num(item.quantity)}
+                      </small>
+                    </span>
                     <span className="mini-cart-price">{money(num(item.subtotal_price), currencySymbol)}</span>
                   </li>
                 ))}
@@ -82,10 +103,32 @@ export default function OrderDetail() {
                   <strong className="text-accent">&minus; {money(num(order.discount_amount), currencySymbol)}</strong>
                 </div>
               )}
+              {num(order.discount_coupon_amount) > 0 && (
+                <div className="order-summary-row">
+                  <span>Coupon</span>
+                  <strong className="text-accent">&minus; {money(num(order.discount_coupon_amount), currencySymbol)}</strong>
+                </div>
+              )}
               <div className="order-summary-total">
                 <span>Total</span>
                 <strong>{money(num(order.total_amount), currencySymbol)}</strong>
               </div>
+              {num(order.returned_amount) > 0 && (
+                <div className="order-summary-row">
+                  <span>Returned</span>
+                  <strong>&minus; {money(num(order.returned_amount), currencySymbol)}</strong>
+                </div>
+              )}
+              <div className="order-summary-row">
+                <span>Paid <span className={`dash-badge ms-1 ${order.sale_paid_status === 'Paid' ? 'is-done' : 'is-pending'}`}>{order.sale_paid_status}</span></span>
+                <strong>{money(num(order.paid_amount), currencySymbol)}</strong>
+              </div>
+              {num(order.due_amount) > 0 && (
+                <div className="order-summary-row">
+                  <span>Due</span>
+                  <strong className="text-danger">{money(num(order.due_amount), currencySymbol)}</strong>
+                </div>
+              )}
             </div>
 
             <div className="panel">
@@ -102,6 +145,11 @@ export default function OrderDetail() {
               )}
             </div>
           </div>
+          {(order.can_request_return || num(order.returned_amount) > 0) && (
+            <div className="col-12">
+              <OrderReturns orderId={order.id} onChanged={reload} />
+            </div>
+          )}
         </div>
       )}
     </DashLayout>

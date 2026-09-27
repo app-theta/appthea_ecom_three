@@ -1,9 +1,13 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { categoryNavTree } from '../../utils/categoryTree.js';
+import { useSubscribe } from '../../hooks/useSubscribe.js';
 
 export default function Footer() {
   const { info, categories } = useBusiness();
+  const [email, setEmail] = useState('');
+  const newsletter = useSubscribe();
 
   const name = info?.name || 'AppTheta Ecom';
   const shopLinks = categoryNavTree(categories).slice(0, 4);
@@ -100,6 +104,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/faq">
+                  <i className="bi bi-chevron-double-right"></i>
+                  FAQ
+                </Link>
+              </li>
+              <li>
                 <Link to="/terms">
                   <i className="bi bi-chevron-double-right"></i>
                   Terms &amp; Conditions
@@ -149,19 +159,26 @@ export default function Footer() {
             </ul>
             {info?.features?.is_subscribe_newsletter && (
               <>
-                <form className="footer-form input-group" onSubmit={(e) => e.preventDefault()}>
-                  <input
-                    type="email"
-                    className="form-control"
-                    placeholder="Email address"
-                    aria-label="Email address"
-                  />
-                  <button className="btn btn-accent" type="submit">
-                    Join
-                  </button>
-                </form>
+                {newsletter.done ? (
+                  <p className="footer-note">Thanks for subscribing!</p>
+                ) : (
+                  <form className="footer-form input-group" onSubmit={(e) => { e.preventDefault(); newsletter.subscribe(email); }}>
+                    <input
+                      type="email"
+                      className="form-control"
+                      placeholder="Email address"
+                      aria-label="Email address"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                    <button className="btn btn-accent" type="submit" disabled={newsletter.busy}>
+                      Join
+                    </button>
+                  </form>
+                )}
                 <p className="footer-note">
-                  Get 10% off your first order. Unsubscribe any time.
+                  {newsletter.error || 'News and offers from the shop. Unsubscribe any time.'}
                 </p>
               </>
             )}

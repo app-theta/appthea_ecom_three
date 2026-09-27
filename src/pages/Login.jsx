@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { useBusiness } from '../context/BusinessContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { parseApiError } from '../api/errors.js';
+import SocialLogin from '../components/auth/SocialLogin.jsx';
 
 export default function Login() {
   const { login } = useAuth();
-  const { features } = useBusiness();
   const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -127,25 +126,7 @@ export default function Login() {
                 {busy ? 'Signing in…' : 'Log in'}
               </button>
 
-              {(features.google_status || features.facebook_status) && (
-                <>
-                  <div className="auth-divider">
-                    <span>or continue with</span>
-                  </div>
-                  <div className="social-auth">
-                    {features.google_status && (
-                      <button type="button" className="btn btn-social">
-                        <i className="bi bi-google"></i> Google
-                      </button>
-                    )}
-                    {features.facebook_status && (
-                      <button type="button" className="btn btn-social">
-                        <i className="bi bi-facebook"></i> Facebook
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
+              <SocialLogin onDone={() => navigate(location.state?.from || '/user/dashboard', { replace: true })} />
 
               <p className="auth-legal">
                 By logging in you agree to our <Link to="/terms">Terms</Link> and{' '}

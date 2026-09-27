@@ -9,6 +9,7 @@ import { WishlistProvider } from './context/WishlistContext.jsx';
 import { CartProvider } from './context/CartContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { QuickViewProvider } from './context/QuickViewContext.jsx';
+import { CompareProvider } from './context/CompareContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -19,7 +20,9 @@ createRoot(document.getElementById('root')).render(
             <CartProvider>
               <ToastProvider>
                 <QuickViewProvider>
-                  <App />
+                  <CompareProvider>
+                    <App />
+                  </CompareProvider>
                 </QuickViewProvider>
               </ToastProvider>
             </CartProvider>

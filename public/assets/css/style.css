@@ -5866,3 +5866,14 @@ ul {
   flex: none;
   border-radius: 6px;
 }
+/* ── Blog post body ─────────────────────────────────────────────────────── */
+.blog-article .blog-body { font-size: var(--fs-md, 16px); line-height: 1.75; }
+.blog-article .blog-body img { max-width: 100%; height: auto; border-radius: 12px; }
+.pager button.pager-btn { border: 1px solid var(--line); background: #fff; }
+.pager button.pager-btn.disabled { opacity: .45; pointer-events: none; }
+
+/* ── Compare ────────────────────────────────────────────────────────────── */
+.product-action.is-active { background: var(--accent); color: #fff; }
+.pd-links { display: flex; flex-wrap: wrap; gap: 18px; }
+.dash-compare-table .compare-desc { font-size: var(--fs-xs); color: var(--muted, #6b7280); max-width: 240px; }
+.dash-compare-table .compare-muted { color: var(--muted, #9ca3af); }

@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { useWishlist } from '../../context/WishlistContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useCompare, compareMessage } from '../../context/CompareContext.jsx';
 import { money } from '../../utils/format.js';
 import { showOffcanvas } from '../../utils/offcanvas.js';
 import {
@@ -34,6 +35,7 @@ export default function ProductCard({ product }) {
   const { isAuthed } = useAuth();
   const { currencySymbol, features } = useBusiness();
   const wishlist = useWishlist();
+  const compare = useCompare();
   const toast = useToast();
   const navigate = useNavigate();
 
@@ -49,6 +51,13 @@ export default function ProductCard({ product }) {
     e.preventDefault();
     if (!isAuthed) { navigate('/login'); return; }
     wishlist.toggle(product.id).catch(() => { });
+  };
+
+  const compared = compare.has(product.id);
+  const onCompare = (e) => {
+    e.preventDefault();
+    const result = compare.toggle(product);
+    (result === 'full' ? toast.error : toast.success)(compareMessage(result, product.name));
   };
 
   const onAddToCart = (e) => {
@@ -85,6 +94,16 @@ export default function ProductCard({ product }) {
               <i className={`bi ${wished ? 'bi-heart-fill' : 'bi-heart'}`}></i>
             </button>
           )}
+          <button
+            type="button"
+            className={`product-action${compared ? ' is-active' : ''}`}
+            aria-label={compared ? 'Remove from compare' : 'Add to compare'}
+            aria-pressed={compared}
+            title={compared ? 'Remove from compare' : 'Compare'}
+            onClick={onCompare}
+          >
+            <i className="bi bi-arrow-left-right"></i>
+          </button>
           <button
             type="button"
             className="product-action js-quickview-trigger"
