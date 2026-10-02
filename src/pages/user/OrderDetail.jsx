@@ -7,12 +7,14 @@ import { money, statusTone, dateShort } from '../../utils/format.js';
 import { num } from '../../utils/product.js';
 import { parseApiError } from '../../api/errors.js';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useChat } from '../../context/ChatContext.jsx';
 import OrderReturns from '../../components/user/OrderReturns.jsx';
 
 export default function OrderDetail() {
   const { id } = useParams();
   const { currencySymbol } = useBusiness();
   const toast = useToast();
+  const chat = useChat();
   const { data, loading, error, reload } = useAsync((signal) => account.orderDetails(id, { signal }), [id]);
   const order = data?.order;
 
@@ -31,9 +33,16 @@ export default function OrderDetail() {
         <Link to="/user/purchase-history" className="link-accent">
           <i className="bi bi-arrow-left"></i> Back to orders
         </Link>
-        {order?.can_cancel && (
-          <button type="button" className="btn btn-outline-dark btn-sm text-danger" onClick={cancel}>Cancel order</button>
-        )}
+        <div className="d-flex align-items-center gap-2 flex-wrap">
+          {order && chat.enabled && (
+            <button type="button" className="btn btn-outline-dark btn-sm" onClick={() => chat.openChat({ order: { id: order.id, invoice_no: order.invoice_no || order.unique_code } })}>
+              <i className="bi bi-chat-dots"></i> Help with this order
+            </button>
+          )}
+          {order?.can_cancel && (
+            <button type="button" className="btn btn-outline-dark btn-sm text-danger" onClick={cancel}>Cancel order</button>
+          )}
+        </div>
       </div>
 
       {loading && !data ? (

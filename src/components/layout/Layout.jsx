@@ -6,6 +6,7 @@ import MobileBottomNav from './MobileBottomNav.jsx';
 import CartDrawer from './CartDrawer.jsx';
 import QuickViewDrawer from './QuickViewDrawer.jsx';
 import NewsletterPopup from './NewsletterPopup.jsx';
+import ChatWidget from '../chat/ChatWidget.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 
 export default function Layout() {
@@ -38,6 +39,7 @@ export default function Layout() {
       <Outlet />
       <Footer />
       <MobileBottomNav />
+      <ChatWidget />
     </>
   );
 }

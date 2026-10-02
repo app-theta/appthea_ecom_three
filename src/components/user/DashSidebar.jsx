@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
+import { useChat } from '../../context/ChatContext.jsx';
 
 const baseNavItems = [
   { to: '/user/dashboard', icon: 'bi-grid-1x2', label: 'Dashboard' },
@@ -10,7 +11,7 @@ const baseNavItems = [
   { to: '/user/compare', icon: 'bi-arrow-left-right', label: 'Compare' },
   { to: '/user/my-wallet', icon: 'bi-wallet2', label: 'My Wallet' },
   { to: '/user/earning-points', icon: 'bi-award', label: 'Earning Points', feature: 'enable_customer_point_commission' },
-  { to: '/user/support-ticket', icon: 'bi-life-preserver', label: 'Support Ticket' },
+  { to: '/user/chat', icon: 'bi-chat-dots', label: 'Chat with us', feature: 'customer_live_chat', unread: true },
   { to: '/user/manage-profile', icon: 'bi-person-gear', label: 'Manage Profile' },
 ];
 
@@ -18,6 +19,7 @@ export default function DashSidebar() {
   const navigate = useNavigate();
   const { customer, logout } = useAuth();
   const { features } = useBusiness();
+  const { unread } = useChat();
   const navItems = baseNavItems.filter((item) => !item.feature || features[item.feature]);
   const name = [customer?.first_name, customer?.last_name].filter(Boolean).join(' ') || customer?.username || 'Account';
 
@@ -49,6 +51,7 @@ export default function DashSidebar() {
                 className={({ isActive }) => `dash-nav-link${isActive ? ' is-active' : ''}`}
               >
                 <i className={`bi ${item.icon}`}></i> {item.label}
+                {item.unread && unread > 0 && <span className="badge rounded-pill dash-nav-badge">{unread > 99 ? '99+' : unread}</span>}
               </NavLink>
             </li>
           ))}

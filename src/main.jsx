@@ -10,6 +10,7 @@ import { CartProvider } from './context/CartContext.jsx';
 import { ToastProvider } from './context/ToastContext.jsx';
 import { QuickViewProvider } from './context/QuickViewContext.jsx';
 import { CompareProvider } from './context/CompareContext.jsx';
+import { ChatProvider } from './context/ChatContext.jsx';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -21,7 +22,9 @@ createRoot(document.getElementById('root')).render(
               <ToastProvider>
                 <QuickViewProvider>
                   <CompareProvider>
-                    <App />
+                    <ChatProvider>
+                      <App />
+                    </ChatProvider>
                   </CompareProvider>
                 </QuickViewProvider>
               </ToastProvider>

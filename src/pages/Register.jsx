@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { parseApiError } from '../api/errors.js';
@@ -9,6 +9,9 @@ export default function Register() {
   const { register } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
+  // came here from somewhere that needs an account (e.g. the chat) - go back there after
+  const back = location.state?.from || '/user/dashboard';
   const [validated, setValidated] = useState(false);
   const [showPass1, setShowPass1] = useState(false);
   const [showPass2, setShowPass2] = useState(false);
@@ -37,7 +40,7 @@ export default function Register() {
     setBusy(true);
     try {
       await register(form);
-      navigate('/user/dashboard', { replace: true });
+      navigate(back, { replace: true });
     } catch (err) {
       toast.error(parseApiError(err).message);
     } finally { setBusy(false); }
@@ -170,7 +173,7 @@ export default function Register() {
                 </div>
               </div>
 
-              <SocialLogin label="or sign up with" onDone={() => navigate('/user/dashboard', { replace: true })} />
+              <SocialLogin label="or sign up with" onDone={() => navigate(back, { replace: true })} />
             </form>
           </div>
         </div>

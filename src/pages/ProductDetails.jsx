@@ -10,6 +10,7 @@ import { useBusiness } from '../context/BusinessContext.jsx';
 import { useWishlist } from '../context/WishlistContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { useCompare, compareMessage } from '../context/CompareContext.jsx';
+import { useChat } from '../context/ChatContext.jsx';
 import { useAsync } from '../hooks/useAsync.js';
 import { catalog, reviews as reviewsApi } from '../api/endpoints.js';
 import { money } from '../utils/format.js';
@@ -36,6 +37,7 @@ export default function ProductDetails() {
   const { isAuthed } = useAuth();
   const { currencySymbol, enabledPayments, features } = useBusiness();
   const wishlist = useWishlist();
+  const chat = useChat();
   const compare = useCompare();
   const toast = useToast();
 
@@ -446,6 +448,11 @@ export default function ProductDetails() {
                   <button type="button" className="pd-wish-link" onClick={onCompare} aria-pressed={compare.has(product.id)}>
                     <i className="bi bi-arrow-left-right"></i> {compare.has(product.id) ? 'In compare' : 'Add to compare'}
                   </button>
+                  {chat.enabled && (
+                    <button type="button" className="pd-wish-link" onClick={() => chat.openChat({ product: { id: product.id, title: product.name, image: thumbOf(product) } })}>
+                      <i className="bi bi-chat-dots"></i> Ask about this product
+                    </button>
+                  )}
                   {compare.count > 0 && (
                     <Link to="/user/compare" className="pd-wish-link">
                       <i className="bi bi-layout-three-columns"></i> Compare ({compare.count})

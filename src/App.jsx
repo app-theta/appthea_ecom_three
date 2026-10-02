@@ -30,9 +30,9 @@ import Wishlist from './pages/user/Wishlist.jsx';
 import Compare from './pages/user/Compare.jsx';
 import MyWallet from './pages/user/MyWallet.jsx';
 import EarningPoints from './pages/user/EarningPoints.jsx';
-import SupportTicket from './pages/user/SupportTicket.jsx';
 import ManageProfile from './pages/user/ManageProfile.jsx';
 import DeleteAccount from './pages/user/DeleteAccount.jsx';
+import Chat from './pages/user/Chat.jsx';
 
 export default function App() {
   return (
@@ -73,7 +73,7 @@ export default function App() {
         <Route path="/user/compare" element={<Compare />} />
         <Route path="/user/my-wallet" element={<ProtectedRoute><MyWallet /></ProtectedRoute>} />
         <Route path="/user/earning-points" element={<ProtectedRoute><EarningPoints /></ProtectedRoute>} />
-        <Route path="/user/support-ticket" element={<ProtectedRoute><SupportTicket /></ProtectedRoute>} />
+        <Route path="/user/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/user/manage-profile" element={<ProtectedRoute><ManageProfile /></ProtectedRoute>} />
         <Route path="/user/delete-account" element={<ProtectedRoute><DeleteAccount /></ProtectedRoute>} />
       </Route>
