@@ -9,7 +9,7 @@ import { LineDetail } from '../components/layout/CartDrawer.jsx';
 import { checkout as checkoutApi } from '../api/endpoints.js';
 import { parseApiError, isPriceMismatch, needsOtp } from '../api/errors.js';
 import { money } from '../utils/format.js';
-import { useCheckoutDraftAutosave } from '../hooks/useCheckoutDraftAutosave.js';
+import { useCheckoutDraftAutosave, storedGuestId } from '../hooks/useCheckoutDraftAutosave.js';
 
 const PAYMENT_META = {
   'Cash On Delivery': { icon: 'bi-cash-coin', bg: '#e3f5ea', fg: '#1f9254', note: 'Pay when your order arrives' },
@@ -92,7 +92,7 @@ export default function Checkout() {
   }, [applied, subtotal, shippingCharge, discount]);
 
   const getCartPayload = useCallback(() => ({ cart: apiCart(), grandTotal: total }), [apiCart, total]);
-  const { saveDraft } = useCheckoutDraftAutosave({ isLoggedIn: isAuthed, enabled: !!features.draft_orders, getCartPayload });
+  const { saveDraft, cancelPendingDraft } = useCheckoutDraftAutosave({ isLoggedIn: isAuthed, enabled: !!features.draft_orders, getCartPayload });
 
   const set = (k) => (e) => {
     const value = e.target.value;
@@ -132,8 +132,13 @@ export default function Checkout() {
         return;
       }
 
+      // placing it now: a draft save still waiting must not run after the order
+      cancelPendingDraft();
+
       const payload = {
         cart: apiCart(),
+        // lets the server drop this browser's checkout draft once the order exists
+        guest_id: storedGuestId(),
         coupon_code: applied ? coupon : '',
         coupon_discount_amount: discount,
         full_name: `${form.firstName} ${form.lastName}`.trim(),
