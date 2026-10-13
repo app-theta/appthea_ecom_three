@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import ProductCard from '../components/product/ProductCard.jsx';
 import ComboTiers from '../components/product/ComboTiers.jsx';
 import BundleSelector from '../components/product/BundleSelector.jsx';
+import Countdown from '../components/product/Countdown.jsx';
 import Breadcrumb from '../components/layout/Breadcrumb.jsx';
 import { useCart } from '../context/CartContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
@@ -106,6 +107,8 @@ export default function ProductDetails() {
 
   const images = productImages(product);
   const price = selectedBarcode ? barcodePrice(selectedBarcode) : { now: 0, was: 0 };
+  // the chosen variant's campaign - or, before one is chosen, the product's
+  const campaign = selectedBarcode ? selectedBarcode.campaign : product.campaign;
   const discount = price.was > price.now ? Math.round(((price.was - price.now) / price.was) * 100) : 0;
   const needsVariant = barcodes.length > 1 && !selectedBarcode;
   const wished = wishlist.has(product.id);
@@ -340,6 +343,13 @@ export default function ProductDetails() {
                     Write a review
                   </a>
                 </div>
+
+                {campaign && (
+                  <Link className="pd-campaign" to={`/campaign/${campaign.slug}`}>
+                    <span className="pd-campaign-name"><i className="bi bi-lightning-charge-fill"></i> {campaign.title}</span>
+                    <span>Ends in <Countdown endsAt={campaign.ends_at} variant="inline" onEnd={reloadProduct} /></span>
+                  </Link>
+                )}
 
                 <div className="product-price qv-price">
                   <span className="price-now qv-price-now">{money(price.now, currencySymbol)}</span>

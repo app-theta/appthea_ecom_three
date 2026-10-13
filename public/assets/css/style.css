@@ -6139,3 +6139,248 @@ ul {
   }
   .chat-widget:has(.chat-popup) .chat-fab { display: none; }
 }
+
+/* ============================= HOT DEALS & CAMPAIGNS ============================= */
+.countdown {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.countdown-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 54px;
+  padding: 8px 4px;
+  border-radius: 6px;
+  background: var(--ink);
+  color: #fff;
+  line-height: 1.1;
+}
+
+.countdown-value {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown-label {
+  margin-top: 3px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.countdown-light .countdown-unit {
+  background: rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(4px);
+}
+
+.countdown-inline {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.hot-deals .sec-head {
+  flex-wrap: wrap;
+}
+
+.hot-deals .sec-title .bi {
+  color: var(--ink-danger);
+}
+
+.hot-deals-timer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hot-deals-label {
+  font-size: var(--fs-2xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.campaign-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 260px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: var(--radius);
+  color: #fff;
+  background: linear-gradient(120deg, var(--ink), #4b21a8 65%, var(--accent));
+}
+
+.campaign-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.campaign-hero.has-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(17, 17, 20, 0.82), rgba(17, 17, 20, 0.4) 50%, rgba(17, 17, 20, 0.72));
+}
+
+.campaign-hero-body {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+  padding: 40px 36px;
+}
+
+.campaign-hero-eyebrow {
+  margin: 0 0 8px;
+  font-size: var(--fs-3xs);
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #fde68a;
+}
+
+.campaign-hero-title {
+  margin: 0;
+  font-size: var(--fs-8xl);
+  font-weight: 700;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.campaign-hero-about {
+  margin: 10px 0 0;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* right side of the banner; below the text on a phone */
+.campaign-hero-ends {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 40px 36px;
+}
+
+.campaign-hero-ends-label {
+  font-size: var(--fs-3xs);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.campaign-hero-cta {
+  margin-top: 24px;
+  padding: 10px 24px;
+  border: 1px solid #fff;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+.campaign-hero-cta:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft);
+  color: var(--ink);
+}
+
+.campaign-ended .bi {
+  font-size: 44px;
+  color: var(--line);
+}
+
+.campaign-ended h2 {
+  margin: 12px 0 8px;
+  font-size: var(--fs-3xl);
+}
+
+.campaign-ended p {
+  color: var(--ink-soft);
+  margin-bottom: 20px;
+}
+
+.product-campaign {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  max-width: calc(100% - 24px);
+  padding: 4px 9px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: var(--fs-3xs);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.product-campaign:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+.pd-campaign {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 11px 16px;
+  border-radius: 6px;
+  background: var(--ink-danger);
+  color: #fff;
+  font-size: var(--fs-sm);
+}
+
+.pd-campaign:hover {
+  background: var(--ink);
+  color: #fff;
+}
+
+.pd-campaign-name {
+  font-weight: 700;
+}
+
+@media (max-width: 767.98px) {
+  .campaign-hero-body,
+  .campaign-hero-ends {
+    width: 100%;
+  }
+
+  .campaign-hero-body {
+    padding: 28px 20px 14px;
+  }
+
+  .campaign-hero-ends {
+    align-items: flex-start;
+    padding: 0 20px 28px;
+  }
+
+  .campaign-hero-title {
+    font-size: var(--fs-5xl);
+  }
+
+  .countdown-unit {
+    min-width: 44px;
+  }
+
+  .countdown-value {
+    font-size: var(--fs-lg);
+  }
+}

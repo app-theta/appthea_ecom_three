@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import HeroSlider from '../components/product/HeroSlider.jsx';
 import CategorySlider from '../components/product/CategorySlider.jsx';
 import ProductCard from '../components/product/ProductCard.jsx';
+import CampaignHero from '../components/product/CampaignHero.jsx';
+import Countdown from '../components/product/Countdown.jsx';
 import { useBusiness } from '../context/BusinessContext.jsx';
 import { useAsync } from '../hooks/useAsync.js';
 import { useSeoMeta } from '../hooks/useSeoMeta.js';
-import { catalog, home } from '../api/endpoints.js';
+import { catalog, home, deals } from '../api/endpoints.js';
 import { paginated } from '../utils/product.js';
 import { categoryNavTree } from '../utils/categoryTree.js';
 
@@ -69,6 +71,11 @@ export default function Home() {
   const summary = useAsync((signal) => home.summary({ per_page: 8 }, { signal }), []);
   const featuredRows = paginated(summary.data?.featured).rows;
   const bestSellerRows = paginated(summary.data?.latest).rows.slice(0, 4);
+  // both come priced at the deal / campaign price; each reloads when its countdown ends
+  const campaigns = useAsync((signal) => deals.campaigns({ products: 8 }, { signal }), []);
+  const hotDeals = useAsync((signal) => deals.hotDeals({ signal }), []);
+  const campaignList = Array.isArray(campaigns.data?.campaigns) ? campaigns.data.campaigns : [];
+  const hotRows = Array.isArray(hotDeals.data?.products) ? hotDeals.data.products : [];
 
   const flashDeal = useAsync(
     (signal) => (dealCategoryId ? catalog.products({ category_id: dealCategoryId, per_page: 5 }, { signal }) : Promise.resolve(null)),
@@ -80,6 +87,41 @@ export default function Home() {
   return (
     <>
       <HeroSlider />
+
+      {/* ============================= CAMPAIGNS ============================= */}
+      {campaignList.map((c) => (
+        <section className="section campaign-section" key={c.id}>
+          <div className="container">
+            <CampaignHero campaign={c} onEnd={campaigns.reload} />
+            {c.products?.length > 0 && (
+              <div className="mt-4">
+                <ProductGrid rows={c.products} />
+              </div>
+            )}
+          </div>
+        </section>
+      ))}
+
+      {/* ============================= HOT DEALS ============================= */}
+      {hotRows.length > 0 && (
+        <section className="section hot-deals">
+          <div className="container">
+            <div className="sec-head">
+              <div>
+                <h2 className="sec-title"><i className="bi bi-fire"></i> Hot Deals</h2>
+                <p className="sec-sub mb-0">Special prices - only until the timer runs out</p>
+              </div>
+              {hotDeals.data?.ends_at && (
+                <div className="hot-deals-timer">
+                  <span className="hot-deals-label">Ends in</span>
+                  <Countdown endsAt={hotDeals.data.ends_at} onEnd={hotDeals.reload} />
+                </div>
+              )}
+            </div>
+            <ProductGrid rows={hotRows} />
+          </div>
+        </section>
+      )}
 
       {/* ============================= CATEGORY SLIDER ============================= */}
       <section className="section cat-section">

@@ -76,6 +76,11 @@ export default function ProductCard({ product }) {
     <article className="product-card">
       <div className="product-media">
         {discount > 0 && <span className="product-badge">-{discount}% OFF</span>}
+        {product.campaign && !soldOut && (
+          <Link className="product-campaign" to={`/campaign/${product.campaign.slug}`} title={product.campaign.title}>
+            <i className="bi bi-lightning-charge-fill"></i> {product.campaign.title}
+          </Link>
+        )}
         <Link to={href}>
           <img className="product-thumb" src={images[0]} alt={product.name} loading="lazy" />
           {images[1] && (

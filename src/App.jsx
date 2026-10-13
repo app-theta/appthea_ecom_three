@@ -4,6 +4,7 @@ import ProtectedRoute from './routes/ProtectedRoute.jsx';
 import Home from './pages/Home.jsx';
 import Shop from './pages/Shop.jsx';
 import ProductDetails from './pages/ProductDetails.jsx';
+import Campaign from './pages/Campaign.jsx';
 import Cart from './pages/Cart.jsx';
 import Checkout from './pages/Checkout.jsx';
 import Login from './pages/Login.jsx';
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/product/:slug" element={<ProductDetails />} />
+        <Route path="/campaign/:slug" element={<Campaign />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/login" element={<Login />} />
