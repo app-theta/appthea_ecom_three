@@ -21,8 +21,10 @@ const PRICE_RANGES = {
 };
 
 export default function Shop() {
-  const { categories, brands } = useBusiness();
+  const { categories, brands, features } = useBusiness();
   const [params, setParams] = useSearchParams();
+  // the home page's "Featured Products - View all" (only while featured products are switched on)
+  const featuredOnly = features.enable_featured_product && params.get('is_featured') === 'Yes';
   const [isListView, setIsListView] = useState(false);
 
   const categorySlug = params.get('category') || '';
@@ -46,11 +48,12 @@ export default function Shop() {
     keyword: keyword || undefined,
     category_id: activeCategory?.id,
     brand_id: activeBrand?.id,
+    is_featured: featuredOnly ? 'Yes' : undefined,
     sort,
     per_page: 12,
     page,
     ...(PRICE_RANGES[price] || {}),
-  }), [keyword, activeCategory?.id, activeBrand?.id, sort, page, price]);
+  }), [keyword, activeCategory?.id, activeBrand?.id, featuredOnly, sort, page, price]);
 
   const { data, loading, error, reload } = useAsync(
     (signal) => catalog.products(query, { signal }),

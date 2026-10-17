@@ -62,7 +62,7 @@ function CategoryBlock({ category, isLast }) {
 
 export default function Home() {
   useSeoMeta('home');
-  const { categories } = useBusiness();
+  const { categories, features } = useBusiness();
   const topCategories = useMemo(() => categoryNavTree(categories).slice(0, 3), [categories]);
   const [activeDealCategory, setActiveDealCategory] = useState(null);
   const dealTabs = useMemo(() => categoryNavTree(categories).slice(0, 5), [categories]);
@@ -71,11 +71,12 @@ export default function Home() {
   const summary = useAsync((signal) => home.summary({ per_page: 8 }, { signal }), []);
   const featuredRows = paginated(summary.data?.featured).rows;
   const bestSellerRows = paginated(summary.data?.latest).rows.slice(0, 4);
-  // both come priced at the deal / campaign price; each reloads when its countdown ends
-  const campaigns = useAsync((signal) => deals.campaigns({ products: 8 }, { signal }), []);
-  const hotDeals = useAsync((signal) => deals.hotDeals({ signal }), []);
-  const campaignList = Array.isArray(campaigns.data?.campaigns) ? campaigns.data.campaigns : [];
-  const hotRows = Array.isArray(hotDeals.data?.products) ? hotDeals.data.products : [];
+  // both come priced at the deal / campaign price; each reloads when its countdown ends.
+  // A section the store switched off is neither fetched nor shown.
+  const campaigns = useAsync((signal) => deals.campaigns({ products: 8 }, { signal }), [], { skip: !features.enable_campaign });
+  const hotDeals = useAsync((signal) => deals.hotDeals({ signal }), [], { skip: !features.enable_hotdeal_product });
+  const campaignList = features.enable_campaign && Array.isArray(campaigns.data?.campaigns) ? campaigns.data.campaigns : [];
+  const hotRows = features.enable_hotdeal_product && Array.isArray(hotDeals.data?.products) ? hotDeals.data.products : [];
 
   const flashDeal = useAsync(
     (signal) => (dealCategoryId ? catalog.products({ category_id: dealCategoryId, per_page: 5 }, { signal }) : Promise.resolve(null)),
@@ -167,19 +168,21 @@ export default function Home() {
       )}
 
       {/* ============================= FEATURED PRODUCTS ============================= */}
-      <section className="section featured-section">
-        <div className="container">
-          <div className="sec-head">
-            <div>
-              <h2 className="sec-title">Featured Products</h2>
+      {features.enable_featured_product && (
+        <section className="section featured-section">
+          <div className="container">
+            <div className="sec-head">
+              <div>
+                <h2 className="sec-title">Featured Products</h2>
+              </div>
+              <Link to="/shop?is_featured=Yes" className="btn-ghost">
+                View all
+              </Link>
             </div>
-            <Link to="/shop?is_featured=Yes" className="btn-ghost">
-              View all
-            </Link>
+            <ProductGrid rows={featuredRows.slice(0, 4)} loading={summary.loading} />
           </div>
-          <ProductGrid rows={featuredRows.slice(0, 4)} loading={summary.loading} />
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ============================= BEST SELLERS ============================= */}
       <section className="section bestseller-section">
