@@ -11,6 +11,10 @@ import { ToastProvider } from './context/ToastContext.jsx';
 import { QuickViewProvider } from './context/QuickViewContext.jsx';
 import { CompareProvider } from './context/CompareContext.jsx';
 import { ChatProvider } from './context/ChatContext.jsx';
+import { restoreWebsiteTheme } from './theme/websiteTheme';
+
+// the business's colours from the last visit, before the first paint (business/info brings today's)
+restoreWebsiteTheme();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
