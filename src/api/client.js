@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-export const API_BASE = `${(import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '')}/api`;
-export const PUBLIC_KEY = import.meta.env.VITE_APPTHETA_PUBLIC_KEY || '';
+export const API_BASE = `${(process.env.NEXT_PUBLIC_API_BASE_URL || '').replace(/\/$/, '')}/api`;
+export const PUBLIC_KEY = process.env.NEXT_PUBLIC_APPTHETA_PUBLIC_KEY || '';
 export const TOKEN_KEY = 'AppTheta_ecom_token';
 
 export function getToken() {

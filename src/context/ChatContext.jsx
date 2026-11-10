@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { chat as chatApi } from '../api/endpoints.js';
 import { useAuth } from './AuthContext.jsx';

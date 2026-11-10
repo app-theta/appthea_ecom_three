@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from '@/lib/router';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { useChat } from '../../context/ChatContext.jsx';

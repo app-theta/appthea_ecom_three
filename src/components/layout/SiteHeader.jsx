@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from '@/lib/router';
 import { useCart } from '../../context/CartContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';

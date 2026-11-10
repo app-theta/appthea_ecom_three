@@ -6,10 +6,8 @@
  * the shades it needs (hover, tints, gradients, button text) worked out from it. A colour not picked
  * is left alone, so a business that picked nothing looks exactly like the template.
  *
- * The last theme is kept in the browser, so the next visit paints the business's colours before
- * the API answers instead of flashing the template's.
+ * The server writes them into the page as CSS (themeCss), so the first paint already has them.
  */
-const STORE_KEY = `website-theme:${import.meta.env.VITE_APPTHETA_PUBLIC_KEY || ''}`;
 
 const MAP = {
   primary: (c) => ({
@@ -42,39 +40,34 @@ const MAP = {
   }),
 };
 
+/** [name, value] pairs for every colour the business picked. */
+export function themeVars(theme) {
+  const vars = [];
+  Object.entries(MAP).forEach(([key, toVars]) => {
+    if (!isHex(theme?.[key])) return;
+    vars.push(...Object.entries(toVars(theme[key].toLowerCase())));
+  });
+  return vars;
+}
+
+/** The same colours as a stylesheet rule - doubled :root so it wins over the stylesheet wherever it lands. */
+export function themeCss(theme) {
+  const vars = themeVars(theme);
+  return vars.length ? `:root:root{${vars.map(([name, value]) => `${name}:${value}`).join(';')}}` : '';
+}
+
 // the variables painted last time, so a new theme (or none) starts from the design's own
 let painted = [];
 
-/** Paints the business's colours; an empty / missing theme puts the template's own back. */
+/** Paints the business's colours in the browser; an empty / missing theme puts the template's own back. */
 export function applyWebsiteTheme(theme) {
   const root = document.documentElement.style;
   painted.forEach((name) => root.removeProperty(name));
   painted = [];
-  Object.entries(MAP).forEach(([key, toVars]) => {
-    if (!isHex(theme?.[key])) return;
-    Object.entries(toVars(theme[key].toLowerCase())).forEach(([name, value]) => {
-      root.setProperty(name, value);
-      painted.push(name);
-    });
+  themeVars(theme).forEach(([name, value]) => {
+    root.setProperty(name, value);
+    painted.push(name);
   });
-}
-
-export function rememberWebsiteTheme(theme) {
-  try {
-    localStorage.setItem(STORE_KEY, JSON.stringify(theme && typeof theme === 'object' ? theme : {}));
-  } catch {
-    // private window / storage blocked: the colours just arrive with the API
-  }
-}
-
-/** The last visit's colours, before the first paint. */
-export function restoreWebsiteTheme() {
-  try {
-    const theme = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
-    if (theme) applyWebsiteTheme(theme);
-  } catch {
-    // nothing kept, or unreadable: the template's colours until the API answers
-  }
 }
 
 function isHex(value) {

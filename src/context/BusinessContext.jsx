@@ -1,6 +1,8 @@
+'use client';
+
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { basic } from '../api/endpoints';
-import { applyWebsiteTheme, rememberWebsiteTheme } from '../theme/websiteTheme';
+import { applyWebsiteTheme } from '../theme/websiteTheme';
 
 const BusinessContext = createContext(null);
 
@@ -29,17 +31,17 @@ const EMPTY_FEATURES = {
   customer_live_chat: false,
 };
 
-export function BusinessProvider({ children }) {
-  const [info, setInfo] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
-  const [colours, setColours] = useState([]);
-  const [sliders, setSliders] = useState([]);
-  const [seoMeta, setSeoMeta] = useState(null);
-  const [loading, setLoading] = useState(true);
+/**
+ * `initial` is what the server already read ({ bundle, closed }) - the page renders with it
+ * straight away. Only when the server got nothing does the browser ask the API itself.
+ */
+export function BusinessProvider({ initial = null, children }) {
+  const seeded = Boolean(initial?.bundle || initial?.closed);
+  const [{ info, categories, brands, colours, sliders, seoMeta }, setData] = useState(() => readBundle(initial?.bundle));
+  const [loading, setLoading] = useState(!seeded);
   const [error, setError] = useState(null);
   // the API answered 423: the shop is closed (stopped, or its subscription ended)
-  const [closed, setClosed] = useState(null);
+  const [closed, setClosed] = useState(initial?.closed ?? null);
 
   useEffect(() => {
     const onClosed = (e) => setClosed(e.detail || 'closed');
@@ -48,6 +50,7 @@ export function BusinessProvider({ children }) {
   }, []);
 
   useEffect(() => {
+    if (seeded) return undefined;
     let alive = true;
     const controller = new AbortController();
     (async () => {
@@ -55,16 +58,9 @@ export function BusinessProvider({ children }) {
       try {
         const bundle = await basic.all(undefined, { signal: controller.signal });
         if (!alive) return;
-        // a failed sub-call degrades to [] server-side (still truthy) - only a
-        // real business record has an id, so that's what "success" means here
-        const businessInfo = bundle?.business?.id ? bundle.business : null;
-        setInfo(businessInfo);
-        setCategories(asList(bundle?.categoryLists));
-        setBrands(asList(bundle?.brandLists));
-        setColours(asList(bundle?.colourLists));
-        setSliders(asList(bundle?.sliderLists));
-        setSeoMeta(bundle?.seoMetaInfos || null);
-        setError(businessInfo ? null : 'business/info unavailable');
+        const data = readBundle(bundle);
+        setData(data);
+        setError(data.info ? null : 'business/info unavailable');
       } catch {
         if (alive) setError('business/info unavailable');
       } finally {
@@ -72,29 +68,12 @@ export function BusinessProvider({ children }) {
       }
     })();
     return () => { alive = false; controller.abort(); };
-  }, []);
+  }, [seeded]);
 
+  // the server already wrote these colours into the page; this covers a browser-side load
   useEffect(() => {
-    if (info?.name) document.title = info.name;
-  }, [info?.name]);
-
-  // the business's own colours (Website Manage > Website Theme), kept for the next visit's first paint
-  useEffect(() => {
-    if (!info) return;
-    applyWebsiteTheme(info.theme);
-    rememberWebsiteTheme(info.theme);
-  }, [info]);
-
-  useEffect(() => {
-    if (!info?.favicon) return;
-    let link = document.querySelector('link[rel="icon"]');
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'icon';
-      document.head.appendChild(link);
-    }
-    link.href = info.favicon;
-  }, [info?.favicon]);
+    if (!seeded && info) applyWebsiteTheme(info.theme);
+  }, [seeded, info]);
 
   const value = useMemo(() => {
     const features = { ...EMPTY_FEATURES, ...(info?.features || {}) };
@@ -140,6 +119,19 @@ export const PAYMENT_MAP = {
 
 function truthy(v) {
   return v === true || v === 1 || v === '1' || v === 'Yes' || v === 'active';
+}
+
+// a failed sub-call degrades to [] server-side (still truthy) - only a
+// real business record has an id, so that's what 'success' means here
+function readBundle(bundle) {
+  return {
+    info: bundle?.business?.id ? bundle.business : null,
+    categories: asList(bundle?.categoryLists),
+    brands: asList(bundle?.brandLists),
+    colours: asList(bundle?.colourLists),
+    sliders: asList(bundle?.sliderLists),
+    seoMeta: bundle?.seoMetaInfos || null,
+  };
 }
 
 function asList(payload) {

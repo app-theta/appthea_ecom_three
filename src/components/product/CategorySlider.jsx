@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { imageUrl } from '../../utils/product.js';
 

@@ -3,11 +3,12 @@ import { useEffect, useRef, useState } from 'react';
 /** Time left until `endsAt` (ISO), ticking every second; `done` once it has passed. */
 export function useCountdown(endsAt) {
   const end = endsAt ? new Date(endsAt).getTime() : NaN;
-  const valid = Number.isFinite(end);
-  const [now, setNow] = useState(() => Date.now());
+  // no clock until mounted: the server's 'now' would never match the browser's
+  const [now, setNow] = useState(null);
+  const valid = Number.isFinite(end) && now !== null;
 
   useEffect(() => {
-    if (!valid) return undefined;
+    if (!Number.isFinite(end)) return undefined;
     setNow(Date.now());
     const id = setInterval(() => {
       const t = Date.now();
@@ -15,7 +16,7 @@ export function useCountdown(endsAt) {
       if (t >= end) clearInterval(id);
     }, 1000);
     return () => clearInterval(id);
-  }, [end, valid]);
+  }, [end]);
 
   const left = valid ? Math.max(0, Math.floor((end - now) / 1000)) : 0;
   return {
@@ -41,6 +42,7 @@ export default function Countdown({ endsAt, variant = 'boxes', onEnd, className 
   const fired = useRef(null);
 
   useEffect(() => {
+    if (!left.valid) return;
     if (fired.current === null) {
       fired.current = left.done;
       return;
@@ -49,7 +51,7 @@ export default function Countdown({ endsAt, variant = 'boxes', onEnd, className 
       fired.current = true;
       onEnd?.();
     }
-  }, [left.done, onEnd]);
+  }, [left.valid, left.done, onEnd]);
 
   if (!left.valid) return null;
 

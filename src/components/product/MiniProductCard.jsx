@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 
 export default function MiniProductCard({ name, image, priceNow, slug }) {
   const href = slug ? `/product/${slug}` : '/shop';

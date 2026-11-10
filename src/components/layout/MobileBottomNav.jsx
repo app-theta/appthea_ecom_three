@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink } from '@/lib/router';
 import { useCart } from '../../context/CartContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 

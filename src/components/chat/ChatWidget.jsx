@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from '@/lib/router';
 import { useChat } from '../../context/ChatContext.jsx';
 import ChatPanel from './ChatPanel.jsx';
 

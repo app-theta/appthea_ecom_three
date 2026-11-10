@@ -11,6 +11,8 @@ node_modules
 public/workscreenshot
 dist
 dist-ssr
+.next
+next-env.d.ts
 *.local
 .env
 

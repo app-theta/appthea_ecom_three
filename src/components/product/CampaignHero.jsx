@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 import Countdown from './Countdown.jsx';
 import { imageUrl, plain } from '../../utils/product.js';
 

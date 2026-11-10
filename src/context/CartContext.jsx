@@ -1,4 +1,6 @@
-import { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
+'use client';
+
+import { createContext, useContext, useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { checkout as checkoutApi } from '../api/endpoints';
 import { barcodePrice, productImages, barcodesOf, variantLabel as variantLabelOf } from '../utils/product';
 
@@ -41,10 +43,17 @@ const read = () => {
 };
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState(read);
+  // empty on the server and the first browser render alike; the saved cart arrives right after
+  const [items, setItems] = useState([]);
+  const loaded = useRef(false);
+
   const [pricing, setPricing] = useState(false);
 
+  useEffect(() => { setItems(read()); }, []);
+
   useEffect(() => {
+    // the first run still holds the empty start - writing it would wipe the saved cart
+    if (!loaded.current) { loaded.current = true; return; }
     try { localStorage.setItem(KEY, JSON.stringify(items)); } catch { /* quota */ }
   }, [items]);
 

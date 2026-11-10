@@ -1,4 +1,6 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+'use client';
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 const CompareContext = createContext(null);
 const STORAGE_KEY = 'apptheta_compare';
@@ -19,9 +21,15 @@ function read() {
  * server) as { id, slug, name } - the compare page loads the live product for each slug.
  */
 export function CompareProvider({ children }) {
-  const [items, setItems] = useState(read);
+  // empty on the server and the first browser render alike; the saved list arrives right after
+  const [items, setItems] = useState([]);
+  const loaded = useRef(false);
+
+  useEffect(() => { setItems(read()); }, []);
 
   useEffect(() => {
+    // the first run still holds the empty start - writing it would wipe the saved list
+    if (!loaded.current) { loaded.current = true; return; }
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch { /* private mode */ }
   }, [items]);
 

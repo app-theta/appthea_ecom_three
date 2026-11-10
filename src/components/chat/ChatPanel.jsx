@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from '@/lib/router';
 import { useChat } from '../../context/ChatContext.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { parseApiError } from '../../api/errors.js';

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 import { useCart } from '../../context/CartContext.jsx';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { money } from '../../utils/format.js';

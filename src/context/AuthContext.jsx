@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { auth as authApi } from '../api/endpoints';
 import { getToken, setToken } from '../api/client';
@@ -7,10 +9,9 @@ const AuthContext = createContext(null);
 const CUSTOMER_KEY = 'AppTheta_ecom_customer';
 
 export function AuthProvider({ children }) {
-  const [customer, setCustomer] = useState(() => {
-    try { return JSON.parse(localStorage.getItem(CUSTOMER_KEY) || 'null'); } catch { return null; }
-  });
-  const [booting, setBooting] = useState(Boolean(getToken()));
+  // the server has no localStorage: start logged-out-and-booting, read the browser's after mount
+  const [customer, setCustomer] = useState(null);
+  const [booting, setBooting] = useState(true);
 
   const persist = useCallback((c) => {
     setCustomer(c);
@@ -21,7 +22,8 @@ export function AuthProvider({ children }) {
 
   /* Re-validate a stored token once on boot. */
   useEffect(() => {
-    if (!getToken()) return;
+    if (!getToken()) { setBooting(false); return; }
+    try { setCustomer(JSON.parse(localStorage.getItem(CUSTOMER_KEY) || 'null')); } catch { /* ignore */ }
     let alive = true;
     authApi.profile()
       .then((data) => { if (alive) persist(data?.customer || data || null); })

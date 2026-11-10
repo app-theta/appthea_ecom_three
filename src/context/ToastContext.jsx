@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 
 const ToastContext = createContext(null);

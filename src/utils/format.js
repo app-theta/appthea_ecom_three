@@ -25,5 +25,6 @@ export function dateShort(value) {
   if (!value) return '';
   const d = new Date(String(value).replace(' ', 'T'));
   if (Number.isNaN(d.getTime())) return String(value);
-  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+  // one fixed zone, so the server-rendered date and the browser's agree
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Dhaka' });
 }

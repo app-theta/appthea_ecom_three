@@ -1,0 +1,213 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { Link } from '@/lib/router';
+import HeroSlider from '../components/product/HeroSlider.jsx';
+import CategorySlider from '../components/product/CategorySlider.jsx';
+import ProductCard from '../components/product/ProductCard.jsx';
+import CampaignHero from '../components/product/CampaignHero.jsx';
+import Countdown from '../components/product/Countdown.jsx';
+import { useBusiness } from '../context/BusinessContext.jsx';
+import { useAsync } from '../hooks/useAsync.js';
+import { catalog, home, deals } from '../api/endpoints.js';
+import { paginated } from '../utils/product.js';
+import { categoryNavTree } from '../utils/categoryTree.js';
+
+function ProductGrid({ rows, loading, cols = 'col-12 col-sm-6 col-md-3' }) {
+  if (loading) {
+    return (
+      <div className="row g-4 product-grid">
+        {Array.from({ length: 4 }, (_, i) => (
+          <div className={cols} key={i}>
+            <div style={{ aspectRatio: '3/4', background: 'var(--cat-bg)', borderRadius: 'var(--radius)' }} />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="row g-4 product-grid">
+      {rows.map((p) => (
+        <div className={cols} key={p.id}>
+          <ProductCard product={p} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function CategoryBlock({ category, isLast, initial }) {
+  const { data, loading } = useAsync(
+    (signal) => catalog.products({ category_id: category.id, per_page: 4 }, { signal }),
+    [category.id],
+    { initial },
+  );
+  const rows = paginated(data).rows;
+  if (!loading && rows.length === 0) return null;
+
+  return (
+    <section className={`section category-block${isLast ? ' category-block-last' : ''}`}>
+      <div className="container">
+        <div className="sec-head">
+          <div>
+            <h2 className="sec-title">Shop {category.label}</h2>
+          </div>
+          <Link to={`/shop?category=${category.slug}`} className="btn-ghost">
+            View all
+          </Link>
+        </div>
+        <ProductGrid rows={rows} loading={loading} />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * `initial`: what the server already read - { summary, campaigns, hotDeals, flashDeal (first tab),
+ * categoryBlocks: { [categoryId]: products } }.
+ */
+export default function Home({ initial = {} }) {
+  const { categories, features } = useBusiness();
+  const topCategories = useMemo(() => categoryNavTree(categories).slice(0, 3), [categories]);
+  const [activeDealCategory, setActiveDealCategory] = useState(null);
+  const dealTabs = useMemo(() => categoryNavTree(categories).slice(0, 5), [categories]);
+  const dealCategoryId = activeDealCategory ?? dealTabs[0]?.id ?? null;
+
+  const summary = useAsync((signal) => home.summary({ per_page: 8 }, { signal }), [], { initial: initial.summary });
+  const featuredRows = paginated(summary.data?.featured).rows;
+  const bestSellerRows = paginated(summary.data?.latest).rows.slice(0, 4);
+  // both come priced at the deal / campaign price; each reloads when its countdown ends.
+  // A section the store switched off is neither fetched nor shown.
+  const campaigns = useAsync((signal) => deals.campaigns({ products: 8 }, { signal }), [], { skip: !features.enable_campaign, initial: initial.campaigns });
+  const hotDeals = useAsync((signal) => deals.hotDeals({ signal }), [], { skip: !features.enable_hotdeal_product, initial: initial.hotDeals });
+  const campaignList = features.enable_campaign && Array.isArray(campaigns.data?.campaigns) ? campaigns.data.campaigns : [];
+  const hotRows = features.enable_hotdeal_product && Array.isArray(hotDeals.data?.products) ? hotDeals.data.products : [];
+
+  const flashDeal = useAsync(
+    (signal) => (dealCategoryId ? catalog.products({ category_id: dealCategoryId, per_page: 5 }, { signal }) : Promise.resolve(null)),
+    [dealCategoryId],
+    { skip: !dealCategoryId, initial: initial.flashDeal },
+  );
+  const flashDealRows = paginated(flashDeal.data).rows;
+
+  return (
+    <>
+      <HeroSlider />
+
+      {/* ============================= CAMPAIGNS ============================= */}
+      {campaignList.map((c) => (
+        <section className="section campaign-section" key={c.id}>
+          <div className="container">
+            <CampaignHero campaign={c} onEnd={campaigns.reload} />
+            {c.products?.length > 0 && (
+              <div className="mt-4">
+                <ProductGrid rows={c.products} />
+              </div>
+            )}
+          </div>
+        </section>
+      ))}
+
+      {/* ============================= HOT DEALS ============================= */}
+      {hotRows.length > 0 && (
+        <section className="section hot-deals">
+          <div className="container">
+            <div className="sec-head">
+              <div>
+                <h2 className="sec-title"><i className="bi bi-fire"></i> Hot Deals</h2>
+                <p className="sec-sub mb-0">Special prices - only until the timer runs out</p>
+              </div>
+              {hotDeals.data?.ends_at && (
+                <div className="hot-deals-timer">
+                  <span className="hot-deals-label">Ends in</span>
+                  <Countdown endsAt={hotDeals.data.ends_at} onEnd={hotDeals.reload} />
+                </div>
+              )}
+            </div>
+            <ProductGrid rows={hotRows} />
+          </div>
+        </section>
+      )}
+
+      {/* ============================= CATEGORY SLIDER ============================= */}
+      <section className="section cat-section">
+        <div className="container">
+          <div className="sec-head">
+            <div>
+              <h2 className="sec-title">Featured Categories</h2>
+            </div>
+            <Link to="/shop" className="btn-ghost">
+              View all
+            </Link>
+          </div>
+          <CategorySlider />
+        </div>
+      </section>
+
+      {/* ============================= FLASH DEAL ============================= */}
+      {dealTabs.length > 0 && (
+        <section className="section deal-section">
+          <div className="container">
+            <div className="sec-head sec-head-center">
+              <h2 className="sec-title">Flash Fashion Deal</h2>
+            </div>
+
+            <div className="deal-tabs js-deal-tabs" role="tablist">
+              {dealTabs.map((tab) => (
+                <button
+                  type="button"
+                  key={tab.id}
+                  className={`deal-tab${dealCategoryId === tab.id ? ' is-active' : ''}`}
+                  role="tab"
+                  aria-selected={dealCategoryId === tab.id}
+                  onClick={() => setActiveDealCategory(tab.id)}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <ProductGrid rows={flashDealRows} loading={flashDeal.loading} cols="col-12 col-sm-6 col-md-4 col-lg" />
+          </div>
+        </section>
+      )}
+
+      {/* ============================= FEATURED PRODUCTS ============================= */}
+      {features.enable_featured_product && (
+        <section className="section featured-section">
+          <div className="container">
+            <div className="sec-head">
+              <div>
+                <h2 className="sec-title">Featured Products</h2>
+              </div>
+              <Link to="/shop?is_featured=Yes" className="btn-ghost">
+                View all
+              </Link>
+            </div>
+            <ProductGrid rows={featuredRows.slice(0, 4)} loading={summary.loading} />
+          </div>
+        </section>
+      )}
+
+      {/* ============================= BEST SELLERS ============================= */}
+      <section className="section bestseller-section">
+        <div className="container">
+          <div className="sec-head">
+            <div>
+              <h2 className="sec-title">New Arrivals</h2>
+            </div>
+            <Link to="/shop" className="btn-ghost">
+              View all
+            </Link>
+          </div>
+          <ProductGrid rows={bestSellerRows} loading={summary.loading} />
+        </div>
+      </section>
+
+      {/* ============================= PER-CATEGORY BLOCKS ============================= */}
+      {topCategories.map((cat, i) => (
+        <CategoryBlock key={cat.id} category={cat} isLast={i === topCategories.length - 1} initial={initial.categoryBlocks?.[cat.id]} />
+      ))}
+    </>
+  );
+}

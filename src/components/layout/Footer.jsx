@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 import { categoryNavTree } from '../../utils/categoryTree.js';
 import { useSubscribe } from '../../hooks/useSubscribe.js';

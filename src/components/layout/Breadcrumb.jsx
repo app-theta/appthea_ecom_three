@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/lib/router';
 import { useBusiness } from '../../context/BusinessContext.jsx';
 
 /** items: [{ label, to? }] - the last item is rendered as the current page
